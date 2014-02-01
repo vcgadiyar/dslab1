@@ -1,6 +1,9 @@
 package ds.model;
 
-public class LogicalTimeStamp extends TimeStamp 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class LogicalTimeStamp extends TimeStamp implements Comparable<LogicalTimeStamp>
 {
 	private int time;
 	
@@ -23,6 +26,14 @@ public class LogicalTimeStamp extends TimeStamp
 	public void setTime(int timeToSet) 
 	{	
 		this.time = timeToSet;
+	}
+	
+	@Override
+	public int compareTo(LogicalTimeStamp arg0) {
+		// Ascending Order Sorting
+		int ret_val;
+		ret_val = this.time - arg0.time;
+		return ret_val;
 	}
 
 }
