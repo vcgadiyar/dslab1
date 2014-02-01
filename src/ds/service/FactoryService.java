@@ -25,7 +25,7 @@ public class FactoryService
 			}
 			else
 			{
-				clockService = new VectorClassService(numProcesses,currProcIndex);
+				clockService = new VectorClockService(numProcesses,currProcIndex);
 			}
 		}
 		return clockService;
