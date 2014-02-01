@@ -1,12 +1,12 @@
 import java.io.Serializable;
 
 public class Message implements Serializable{
-	private String src;
-	private String dest;
-	private String kind;
-	private Object data;
-	private int seqNum;
-	private boolean isDupe;
+	protected String src;
+	protected String dest;
+	protected String kind;
+	protected Object data;
+	protected int seqNum;
+	protected boolean isDupe;
 	
 	public Message(String dest, String kind, Object data){
 		this.dest = dest;
