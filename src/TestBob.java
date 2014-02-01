@@ -2,6 +2,8 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.Scanner;
 
+import ds.model.Message;
+
 public class TestBob{
 	public static void main(String[] args){
 		try{

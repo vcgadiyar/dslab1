@@ -13,6 +13,17 @@ public class VectorTimeStamp extends TimeStamp {
 		}
 	}
 	
+	public VectorTimeStamp(TimeStamp ts)
+	{
+		VectorTimeStamp vts = (VectorTimeStamp)ts;
+		int length = vts.getVectorLength();
+		this.vectorData = new int[length];
+		for(int i=0;i<length;i++)
+		{
+			this.vectorData[i] = vts.getVector()[i];
+		}
+	}
+	
 	public int[] getVector()
 	{
 		return this.vectorData;
@@ -26,5 +37,38 @@ public class VectorTimeStamp extends TimeStamp {
 	public void setVector(int index, int data)
 	{
 		this.vectorData[index] = data;
+	}
+	
+	public int compareTo(TimeStamp timeStamp)
+	{
+		int returnVal = 0;
+		VectorTimeStamp vts = (VectorTimeStamp)timeStamp;
+		for(int i=0;i<this.getVectorLength();i++)
+		{
+			if(this.vectorData[i] > vts.getVector()[i] )
+			{
+				if(returnVal==0)
+				{
+					returnVal = 1;
+				}
+				else if (returnVal<0)
+				{
+					return 0;
+				}
+			}
+			else if(this.vectorData[i] < vts.getVector()[i] )
+			{
+				if(returnVal == 0)
+				{
+					returnVal = -1;
+				}
+				else if(returnVal>0)
+				{
+					return 0;
+				}
+			}
+			
+		}
+		return 0;
 	}
 }

@@ -9,6 +9,11 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ds.model.Constants;
+import ds.model.Message;
+import ds.model.TimeStamp;
+import ds.service.FactoryService;
+
 public class MessagePasser{
 	private static MessagePasser msgPasser;
 	
@@ -16,6 +21,7 @@ public class MessagePasser{
 	private String localName;
 	private int seqNum;
 	private Node localNode;
+	private Node loggerlNode;
 	private List<Node> nodes;
 	private List<Rule> sendRules;
 	private List<Rule> recvRules;
@@ -28,6 +34,9 @@ public class MessagePasser{
 	private Lock node2socketLock;
 	private Lock ruleLock;
 	
+	private int localIndex;
+	public static Constants.TimeStampType tsType;
+	
 	public List<Node> getNodeList()
 	{
 		return this.nodes;
@@ -39,6 +48,7 @@ public class MessagePasser{
 		this.localName = localName;
 		this.seqNum = 0;
 		this.localNode = new Node();
+		this.loggerlNode = new Node();
 		this.nodes = new LinkedList<Node>();
 		this.sendRules = new LinkedList<Rule>();
 		this.recvRules = new LinkedList<Rule>();
@@ -52,10 +62,13 @@ public class MessagePasser{
 		this.ruleLock = new ReentrantLock();
 		
 		try{
-			ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, this.sendRules, this.recvRules);
+			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode,loggerlNode, this.nodes, this.sendRules, this.recvRules);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		FactoryService.setClockServiceType(tsType, this.nodes.size()+1, localIndex);
+		
 		SocketListener socketListener = new SocketListener(this.localNode);
 		socketListener.start();
 	}
@@ -116,7 +129,11 @@ public class MessagePasser{
 		}
 	}
 	
-	private void sendMsg(Message msg){
+	private void sendMsg(Message msg1){
+		
+		TimeStampedMessage msg = new TimeStampedMessage(msg1);
+		msg.setTimeStamp(FactoryService.getClockService().updateOnSend());
+		
 		String dest = msg.getDest();
 		Socket socket = null;
 		this.node2socketLock.lock();

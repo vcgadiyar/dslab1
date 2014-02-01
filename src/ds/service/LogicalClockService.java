@@ -15,20 +15,24 @@ public class LogicalClockService extends ClockService
 		this.csLock = new ReentrantLock();
 	}
 	
-	public void updateTimeForSend()
+	public TimeStamp updateOnSend()
 	{
 		this.csLock.lock();
 		((LogicalTimeStamp)this.timeStamp).incrementTime();
+		TimeStamp ts = new LogicalTimeStamp(this.getCurrentTime());
 		this.csLock.unlock();
+		return ts;
 	}
 	
-	public void updateTimeStampForRcv(TimeStamp rcvTime)
+	public TimeStamp updateOnRecv(TimeStamp rcvTime)
 	{
 		LogicalTimeStamp ltp = (LogicalTimeStamp)rcvTime;
 		this.csLock.lock();
 		int timeToSet = Math.max(ltp.getTime(), ((LogicalTimeStamp)this.timeStamp).getTime()+1);
 		((LogicalTimeStamp)this.timeStamp).setTime(timeToSet);
+		TimeStamp ts = new LogicalTimeStamp(this.getCurrentTime());
 		this.csLock.unlock();
+		return ts;
 	}
 	
 	

@@ -1,25 +1,31 @@
 package ds.service;
 
+import ds.model.Constants;
+
 public class FactoryService 
 {
 
-	public static int clockServiceType = -1;
+	public static Constants.TimeStampType clockServiceType = Constants.TimeStampType.NONE;
 	public static ClockService clockService = null;
+	static int numProcesses=0;
+	static int currProcIndex = 0;
 	
-	public static void setClockServiceType(int type)
+	public static void setClockServiceType(Constants.TimeStampType type,int num,int index)
 	{
 		clockServiceType = type;
+		numProcesses = num;
+		currProcIndex = index;
 	}
 	
 	
-	public static ClockService getClockService(int numProcesses,int currProcIndex)
+	public static ClockService getClockService()
 	{
-		if(clockServiceType==-1)
+		if(clockServiceType==Constants.TimeStampType.NONE)
 			return null;
 		
 		if(clockService == null)
 		{
-			if(clockServiceType == 0)
+			if(clockServiceType == Constants.TimeStampType.LOGICAL)
 			{
 				clockService = new LogicalClockService();
 			}

@@ -6,9 +6,11 @@ class VectorClockService extends ClockService {
 	/* Indicator of the current Process index, only for Vector TimeStamp */
 	private int index;
 	
+	
 	/* Constructor for Vector Clock, args: process count from yaml and current process index */
 	VectorClockService(int numberOfProcesses, int processIndex)
 	{
+		super();
 		timeStamp = new VectorTimeStamp(numberOfProcesses);
 		index = processIndex;
 	}
@@ -20,11 +22,12 @@ class VectorClockService extends ClockService {
 	}
 	
 	/* Update Logical TimeStamp while receiving a message */
-	public void updateOnRecv(TimeStamp recvTs)
+	public TimeStamp updateOnRecv(TimeStamp recvTs)
 	{
 		VectorTimeStamp timestamp = (VectorTimeStamp)timeStamp;
 		VectorTimeStamp recvTS = (VectorTimeStamp)recvTs;
 		
+		this.timeLock.lock();
 		for (int i=0; i < timestamp.getVectorLength() ; i++)
 		{
 			if (timestamp.getVector()[i] < recvTS.getVector()[i])
@@ -33,12 +36,19 @@ class VectorClockService extends ClockService {
 			}
 		}
 		timestamp.setVector(index, (timestamp.getVector()[index] + 1));
+		TimeStamp ts = new VectorTimeStamp(this.getCurrentTime());
+		this.timeLock.unlock();
+		return ts;
 	}	
 	
 	/* Update Vector TimeStamp before sending the message */
-	public void updateOnSend()
+	public TimeStamp updateOnSend()
 	{
+		this.timeLock.lock();
 		VectorTimeStamp timestamp = (VectorTimeStamp)timeStamp;
 		timestamp.setVector(index, (timestamp.getVector()[index] + 1));
+		TimeStamp ts = new VectorTimeStamp(this.getCurrentTime());
+		this.timeLock.unlock();
+		return ts;
 	}
 }

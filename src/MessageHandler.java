@@ -4,6 +4,8 @@ import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 
+import ds.model.Message;
+
 public class MessageHandler extends Thread{
 	private Socket socket;
 	

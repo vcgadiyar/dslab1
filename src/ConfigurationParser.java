@@ -10,12 +10,15 @@ import java.util.List;
 
 import org.yaml.snakeyaml.Yaml;
 
+import ds.model.Constants;
+
 public class ConfigurationParser
 {
 	private static long lastModified;
 	
-	public static void parseConfigurationFile(String fileName, String localName, Node localNode, List<Node> nodeList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
+	public static int parseConfigurationFile(String fileName, String localName, Node localNode, Node loggerNode, List<Node> nodeList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
 	{
+		int localIndex = -1;
 		try
 		{
 			File file = new File(fileName);
@@ -26,13 +29,27 @@ public class ConfigurationParser
 		    
 		    LinkedHashMap<String,ArrayList> level1Map = (LinkedHashMap)data;
 		    
+		     String timeStampType = (String)(level1Map.get("timer").get(0));
+		     if(timeStampType.equals("logical"))
+		     {
+		    	 MessagePasser.tsType = Constants.TimeStampType.LOGICAL;
+		     }
+		     else
+		     {
+		    	 MessagePasser.tsType = Constants.TimeStampType.VECTOR;
+		     }
+		    
+		    
 		    ArrayList<HashMap> nodes = (ArrayList)level1Map.get("configuration");
 		    ArrayList<HashMap> sendRules = (ArrayList)level1Map.get("sendRules");
 		    ArrayList<HashMap> receiveRules = (ArrayList)level1Map.get("receiveRules");
 	
 		    Node node ;
+		    
+		    int index = -1;
 		    for(HashMap<String,Object> nodeProps : nodes)
 	    	{
+		    	index++;
 		    	node = new Node(nodeProps.get("name").toString(),nodeProps.get("ip").toString(),(Integer)nodeProps.get("port"));
 		    	if(nodeProps.get("name").toString().equals(localName))
 		    	{
@@ -40,6 +57,15 @@ public class ConfigurationParser
 		    		localNode.setName(node.getName());
 		    		localNode.setIp(node.getIp());
 		    		localNode.setPort(node.getPort());
+		    		localIndex = index;
+		    	}
+		    	else if(nodeProps.get("name").toString().equals("logger"))
+		    	{
+		    		//localNode = node;
+		    		loggerNode.setName(node.getName());
+		    		loggerNode.setIp(node.getIp());
+		    		loggerNode.setPort(node.getPort());
+		    		index--;
 		    	}
 		    	else
 		    	{
@@ -81,6 +107,7 @@ public class ConfigurationParser
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return localIndex;
 	}
 	
 	public static void checkAndUpdateRulesIfChanged(String fileName, List<Rule> sendRuleList, List<Rule> receiveRuleList)

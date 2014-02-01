@@ -1,8 +1,5 @@
 package ds.model;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 public class LogicalTimeStamp extends TimeStamp implements Comparable<LogicalTimeStamp>
 {
 	private int time;
@@ -12,6 +9,11 @@ public class LogicalTimeStamp extends TimeStamp implements Comparable<LogicalTim
 		this.time = 0;
 	}
 	
+	public LogicalTimeStamp(TimeStamp currentTime) 
+	{
+		this.time = ((LogicalTimeStamp)currentTime).getTime();
+	}
+
 	public int getTime()
 	{
 		return this.time;

@@ -1,6 +1,8 @@
 import java.util.List;
 import java.util.Scanner;
 
+import ds.model.Message;
+
 
 public class Application
 {
