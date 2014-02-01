@@ -58,6 +58,12 @@ public class ConfigurationParser
 		    		localNode.setIp(node.getIp());
 		    		localNode.setPort(node.getPort());
 		    		localIndex = index;
+		    		if(nodeProps.get("name").toString().equals("logger"))
+		    		{
+		    			loggerNode.setName(node.getName());
+			    		loggerNode.setIp(node.getIp());
+			    		loggerNode.setPort(node.getPort());
+		    		}
 		    	}
 		    	else if(nodeProps.get("name").toString().equals("logger"))
 		    	{

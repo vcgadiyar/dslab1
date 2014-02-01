@@ -197,7 +197,7 @@ public class MessagePasser{
 		if(action == null){
 			this.recvBufLock.lock();
 			try{
-				this.recvBuf.add(msg);
+				this.addToRecvBuf(msg);
 				this.clearRecvDelayBuf();
 			}finally{
 				this.recvBufLock.unlock();
@@ -210,9 +210,9 @@ public class MessagePasser{
 				try{
 					Message dupeMsg = new Message(msg);
 					dupeMsg.setDupe(true);	
-					this.recvBuf.add(msg);
+					this.addToRecvBuf(msg);
 					this.clearRecvDelayBuf();
-					this.recvBuf.add(dupeMsg);
+					this.addToRecvBuf(dupeMsg);
 				}finally{
 					this.recvBufLock.unlock();
 				}
@@ -277,7 +277,15 @@ public class MessagePasser{
 	
 	private void clearRecvDelayBuf(){
 		while(!this.recvDelayBuf.isEmpty()){
-			this.recvBuf.add(this.recvDelayBuf.remove());
+			addToRecvBuf(this.recvDelayBuf.remove());
 		}
 	}
+	
+	public void addToRecvBuf(Message msg1)
+	{
+		TimeStampedMessage msg = new TimeStampedMessage(msg1);
+		msg.setTimeStamp(FactoryService.getClockService().updateOnSend());
+		this.recvBuf.add(msg);
+	}
+	
 }
