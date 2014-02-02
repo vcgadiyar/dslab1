@@ -83,9 +83,9 @@ public class MessagePasser{
 		return MessagePasser.msgPasser;
 	}
 	
-	public void send(Message msg1)
+	public void send(TimeStampedMessage msg)
 	{
-		TimeStampedMessage msg = new TimeStampedMessage(msg1);
+		//TimeStampedMessage msg = new TimeStampedMessage(msg1);
 		TimeStamp ts = FactoryService.getClockService().updateOnSend();
 		msg.setTimeStamp(ts);
 		
@@ -126,7 +126,7 @@ public class MessagePasser{
 		}
 	}
 	
-	public Message receive(){
+	public TimeStampedMessage receive(){
 		if(!this.recvBuf.isEmpty()){
 			return this.recvBuf.remove();
 		}else{

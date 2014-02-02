@@ -11,6 +11,11 @@ public class TimeStampedMessage extends Message
 		super(msg);
 	}
 
+	public TimeStampedMessage(String name, String kind, Object message) 
+	{
+		super(name,kind,message);
+	}
+
 	public TimeStamp getTimeStamp() 
 	{
 		return timeStamp;

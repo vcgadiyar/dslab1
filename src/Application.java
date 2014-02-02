@@ -96,13 +96,14 @@ public class Application
 					System.out.println();
 					
  
-					Message msg1 = new Message(nodes.get(option-1).getName(), kind, message);
+					TimeStampedMessage msg1 = new TimeStampedMessage(nodes.get(option-1).getName(), kind, message);
 					msgPasser.send(msg1);
 					
 					if(shouldLog.equals("y"))
 					{
-						String logMessage = " sent message to "+msg1.getDest()+": "+message;
-						Message logMsg = new Message(loggerNode.getName(),"log", logMessage );
+						//String logMessage = " sent message to "+msg1.getDest()+": "+message;
+						Object logMessage = msg1;
+						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage );
 						msgPasser.send(logMsg);
 					}
 					
@@ -113,7 +114,7 @@ public class Application
 					
 				case 2:
 				{
-					Message msg1 = msgPasser.receive();
+					TimeStampedMessage msg1 = msgPasser.receive();
 					
 					if(msg1!=null)
 					{
@@ -128,8 +129,9 @@ public class Application
 						System.out.println();
 						if(shouldLog.equals("y"))
 						{
-							String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
-							Message logMsg = new Message(loggerNode.getName(),"log", logMessage );
+							//String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
+							Object logMessage = msg1;
+							TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage );
 							msgPasser.send(logMsg);
 						}
 					}

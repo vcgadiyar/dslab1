@@ -69,7 +69,7 @@ public class TestAlice{
 						System.out.println();
 						
 						//send message
-						Message msg1 = new Message(nodes.get(option-1).getName(), kind, message);
+						TimeStampedMessage msg1 = new TimeStampedMessage(nodes.get(option-1).getName(), kind, message);
 						msgPasser.send(msg1);
 						
 						System.out.println("Message succesfully sent!");
