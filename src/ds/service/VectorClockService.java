@@ -27,7 +27,6 @@ class VectorClockService extends ClockService {
 		VectorTimeStamp timestamp = (VectorTimeStamp)timeStamp;
 		VectorTimeStamp recvTS = (VectorTimeStamp)recvTs;
 		
-		System.out.println("recvTS length "+recvTS.getVectorLength());
 		this.timeLock.lock();
 		for (int i=0; i < timestamp.getVectorLength() ; i++)
 		{

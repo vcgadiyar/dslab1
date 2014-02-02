@@ -20,6 +20,16 @@ public class Application
 		MessagePasser msgPasser = MessagePasser.getInstance();
 		
 		List<Node> nodes = msgPasser.getNodeList();
+		Node loggerNode=null;
+		for(Node node:nodes)
+		{
+			if(node.getName().equals("logger"))
+			{
+				loggerNode = node;
+				break;
+			}
+		}
+		
 		
 		System.out.println("Welcome to the COMMUNICATOR!");
 		System.out.println("---------------------");
@@ -68,6 +78,14 @@ public class Application
 					}
 					System.out.println();
 					
+					String shouldLog = "";
+					while( !shouldLog.equals("y") && !shouldLog.equals("n") )
+					{
+						System.out.print("Should the message be logged (y for yes and n for no): ");
+						shouldLog = reader.nextLine();
+					}
+					System.out.println();
+					
 					
 					String message="";
 					while(message.toString().equals(""))
@@ -81,6 +99,13 @@ public class Application
 					Message msg1 = new Message(nodes.get(option-1).getName(), kind, message);
 					msgPasser.send(msg1);
 					
+					if(shouldLog.equals("y"))
+					{
+						String logMessage = " sent message to "+msg1.getDest()+": "+message;
+						Message logMsg = new Message(loggerNode.getName(),"log", logMessage );
+						msgPasser.send(logMsg);
+					}
+					
 					System.out.println("Finished sending message.");
 					System.out.println();
 				}
@@ -91,7 +116,23 @@ public class Application
 					Message msg1 = msgPasser.receive();
 					
 					if(msg1!=null)
+					{
 						System.out.println(msg1.getData());
+						System.out.println();
+						String shouldLog = "";
+						while( !shouldLog.equals("y") && !shouldLog.equals("n") )
+						{
+							System.out.print("Should the received message be logged (y for yes and n for no): ");
+							shouldLog = reader.nextLine();
+						}
+						System.out.println();
+						if(shouldLog.equals("y"))
+						{
+							String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
+							Message logMsg = new Message(loggerNode.getName(),"log", logMessage );
+							msgPasser.send(logMsg);
+						}
+					}
 					else
 						System.out.println("No pending messages");
 					
