@@ -9,8 +9,10 @@ class Reader extends Thread
 		while(true)
 		{
 			TimeStampedMessage rMsg = (TimeStampedMessage)msgPasser.receive();
-			
-			Logger.addToArray(rMsg);
+			if (rMsg != null)
+			{
+				Logger.addToArray(rMsg);
+			}
 		}
 		
 		} catch (Exception e) {

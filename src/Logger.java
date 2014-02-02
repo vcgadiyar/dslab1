@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
@@ -77,13 +78,14 @@ class Logger
 						{
 							i++;
 							VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
-							System.out.println(i+"> "+ vin.getVector().toString());
+							System.out.println(i+"> "+ Arrays.toString(vin.getVector()));
 						}
 						option = 0;
 						while(option<1 || option>i)
 						{
 							System.out.print("Select a Message: ");
 							option = reader.nextInt();
+							option = option - 1;
 						}
 						reader.nextLine();
 						System.out.println();
