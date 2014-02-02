@@ -16,7 +16,7 @@ public class ConfigurationParser
 {
 	private static long lastModified;
 	
-	public static int parseConfigurationFile(String fileName, String localName, Node localNode, Node loggerNode, List<Node> nodeList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
+	public static int parseConfigurationFile(String fileName, String localName, Node localNode, List<Node> nodeList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
 	{
 		int localIndex = -1;
 		try
@@ -27,9 +27,11 @@ public class ConfigurationParser
 		    Yaml yaml = new Yaml();
 		    Object data = yaml.load(input);
 		    
-		    LinkedHashMap<String,ArrayList> level1Map = (LinkedHashMap)data;
+		    LinkedHashMap<String,Object> level1Map = (LinkedHashMap)data;
 		    
-		     String timeStampType = (String)(level1Map.get("timer").get(0));
+		  //  System.out.println(level1Map.get("timer").toString());
+		    
+		     String timeStampType = (String)(level1Map.get("timer").toString());
 		     if(timeStampType.equals("logical"))
 		     {
 		    	 MessagePasser.tsType = Constants.TimeStampType.LOGICAL;
@@ -58,20 +60,6 @@ public class ConfigurationParser
 		    		localNode.setIp(node.getIp());
 		    		localNode.setPort(node.getPort());
 		    		localIndex = index;
-		    		if(nodeProps.get("name").toString().equals("logger"))
-		    		{
-		    			loggerNode.setName(node.getName());
-			    		loggerNode.setIp(node.getIp());
-			    		loggerNode.setPort(node.getPort());
-		    		}
-		    	}
-		    	else if(nodeProps.get("name").toString().equals("logger"))
-		    	{
-		    		//localNode = node;
-		    		loggerNode.setName(node.getName());
-		    		loggerNode.setIp(node.getIp());
-		    		loggerNode.setPort(node.getPort());
-		    		index--;
 		    	}
 		    	else
 		    	{

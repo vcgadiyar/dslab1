@@ -9,6 +9,7 @@ public class Message implements Serializable{
 	protected int seqNum;
 	protected boolean isDupe;
 	
+
 	public Message(String dest, String kind, Object data){
 		this.dest = dest;
 		this.kind = kind;	
@@ -30,6 +31,10 @@ public class Message implements Serializable{
 
 	public void setSrc(String src) {
 		this.src = src;
+	}
+	
+	public void setDest(String dest) {
+		this.dest = dest;
 	}
 
 	public String getDest() {

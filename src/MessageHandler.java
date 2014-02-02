@@ -20,12 +20,13 @@ public class MessageHandler extends Thread{
 			msgPasser = MessagePasser.getInstance();
 			while(true){
 				ObjectInputStream ois = new ObjectInputStream(this.socket.getInputStream());
-				Message msg = (Message)ois.readObject();
+				TimeStampedMessage msg = (TimeStampedMessage)ois.readObject();
 				src = msg.getSrc();
 				msgPasser.addSocketToMap(src, this.socket);
 				msgPasser.addMsgToBuf(msg);
 			}
 		}catch(Exception e){
+			e.printStackTrace();
 			msgPasser.removeSocketFromMap(src);
 		}
 	}

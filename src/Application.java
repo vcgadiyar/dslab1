@@ -68,13 +68,6 @@ public class Application
 					}
 					System.out.println();
 					
-					String shouldLog = "";
-					while( !shouldLog.equals("y") && !shouldLog.equals("n") )
-					{
-						System.out.print("Should the message be logged (y for yes and n for no): ");
-						shouldLog = reader.nextLine();
-					}
-					System.out.println();
 					
 					String message="";
 					while(message.toString().equals(""))
@@ -84,7 +77,7 @@ public class Application
 					}
 					System.out.println();
 					
-					//send message
+ 
 					Message msg1 = new Message(nodes.get(option-1).getName(), kind, message);
 					msgPasser.send(msg1);
 					

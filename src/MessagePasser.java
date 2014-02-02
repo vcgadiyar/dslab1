@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,14 +22,13 @@ public class MessagePasser{
 	private String localName;
 	private int seqNum;
 	private Node localNode;
-	private Node loggerlNode;
 	private List<Node> nodes;
 	private List<Rule> sendRules;
 	private List<Rule> recvRules;
-	private Queue<Message> sendDelayBuf;
+	private Queue<TimeStampedMessage> sendDelayBuf;
 	private Lock sendBufLock;
-	private Queue<Message> recvDelayBuf;
-	private Queue<Message> recvBuf;
+	private Queue<TimeStampedMessage> recvDelayBuf;
+	private Queue<TimeStampedMessage> recvBuf;
 	private Lock recvBufLock;
 	private Map<String, Socket> node2socket;
 	private Lock node2socketLock;
@@ -48,21 +48,20 @@ public class MessagePasser{
 		this.localName = localName;
 		this.seqNum = 0;
 		this.localNode = new Node();
-		this.loggerlNode = new Node();
 		this.nodes = new LinkedList<Node>();
 		this.sendRules = new LinkedList<Rule>();
 		this.recvRules = new LinkedList<Rule>();
-		this.sendDelayBuf = new LinkedList<Message>();
+		this.sendDelayBuf = new LinkedList<TimeStampedMessage>();
 		this.sendBufLock = new ReentrantLock();
-		this.recvDelayBuf = new LinkedList<Message>();
-		this.recvBuf = new LinkedList<Message>();
+		this.recvDelayBuf = new LinkedList<TimeStampedMessage>();
+		this.recvBuf = new LinkedList<TimeStampedMessage>();
 		this.recvBufLock = new ReentrantLock();
 		this.node2socket = new HashMap<String, Socket>();
 		this.node2socketLock = new ReentrantLock();		
 		this.ruleLock = new ReentrantLock();
 		
 		try{
-			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode,loggerlNode, this.nodes, this.sendRules, this.recvRules);
+			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, this.sendRules, this.recvRules);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -84,7 +83,12 @@ public class MessagePasser{
 		return MessagePasser.msgPasser;
 	}
 	
-	public void send(Message msg){
+	public void send(Message msg1)
+	{
+		TimeStampedMessage msg = new TimeStampedMessage(msg1);
+		TimeStamp ts = FactoryService.getClockService().updateOnSend();
+		msg.setTimeStamp(ts);
+		
 		msg.setSrc(this.localName);
 		msg.setSeqNum(this.seqNum++);
 		String action = this.matchSendRule(msg);
@@ -100,7 +104,8 @@ public class MessagePasser{
 			if(action.equals(Constants.actionDrop)){
 				return;
 			}else if(action.equals(Constants.actionDuplicate)){
-				Message dupeMsg = new Message(msg);
+				TimeStampedMessage dupeMsg = new TimeStampedMessage(msg);
+				dupeMsg.setTimeStamp(ts);
 				dupeMsg.setDupe(true);
 				this.sendMsg(msg);
 				this.sendBufLock.lock();
@@ -128,12 +133,10 @@ public class MessagePasser{
 			return null;
 		}
 	}
+
 	
-	private void sendMsg(Message msg1){
-		
-		TimeStampedMessage msg = new TimeStampedMessage(msg1);
-		msg.setTimeStamp(FactoryService.getClockService().updateOnSend());
-		
+	private void sendMsg(TimeStampedMessage msg)
+	{	
 		String dest = msg.getDest();
 		Socket socket = null;
 		this.node2socketLock.lock();
@@ -152,7 +155,7 @@ public class MessagePasser{
 				this.addSocketToMap(dest, socket);
 			}
 		}catch(Exception e){
-			//e.printStackTrace();
+			e.printStackTrace();
 		}finally{
 			this.node2socketLock.unlock();
 		}
@@ -162,13 +165,15 @@ public class MessagePasser{
 			oos.flush();
 		}catch(Exception e){
 			removeSocketFromMap(dest);
+			e.printStackTrace();
 			System.out.println("Failed to send message to destination,try again");
-		}		
+		}	
+			
 	}
 	
 	private void clearSendDelayBuf(){
 		while(!this.sendDelayBuf.isEmpty()){
-			this.sendMsg(this.sendDelayBuf.remove());
+			this.sendMsg((TimeStampedMessage)this.sendDelayBuf.remove());
 		}
 	}
 	
@@ -192,7 +197,9 @@ public class MessagePasser{
 		}
 	}
 	
-	public void addMsgToBuf(Message msg){
+	public void addMsgToBuf(TimeStampedMessage msg)
+	{
+		
 		String action = this.matchRecvRule(msg);
 		if(action == null){
 			this.recvBufLock.lock();
@@ -208,7 +215,8 @@ public class MessagePasser{
 			}else if(action.equals(Constants.actionDuplicate)){
 				this.recvBufLock.lock();
 				try{
-					Message dupeMsg = new Message(msg);
+					TimeStampedMessage dupeMsg = new TimeStampedMessage(msg);
+					dupeMsg.setTimeStamp( msg.getTimeStamp() );
 					dupeMsg.setDupe(true);	
 					this.addToRecvBuf(msg);
 					this.clearRecvDelayBuf();
@@ -239,7 +247,7 @@ public class MessagePasser{
 		}
 	}
 	
-	private String matchSendRule(Message msg) {
+	private String matchSendRule(TimeStampedMessage msg) {
 		this.ruleLock.lock();
 		ConfigurationParser.checkAndUpdateRulesIfChanged(this.configFileName, this.sendRules, this.recvRules);
 		for(Rule r : this.sendRules){
@@ -257,7 +265,7 @@ public class MessagePasser{
 		return null;
 	}
 	
-	private String matchRecvRule(Message msg) {
+	private String matchRecvRule(TimeStampedMessage msg) {
 		this.ruleLock.lock();
 		ConfigurationParser.checkAndUpdateRulesIfChanged(this.configFileName, this.sendRules, this.recvRules);
 		for(Rule r : this.recvRules){
@@ -281,10 +289,10 @@ public class MessagePasser{
 		}
 	}
 	
-	public void addToRecvBuf(Message msg1)
+	public void addToRecvBuf(TimeStampedMessage msg1)
 	{
 		TimeStampedMessage msg = new TimeStampedMessage(msg1);
-		msg.setTimeStamp(FactoryService.getClockService().updateOnSend());
+		msg.setTimeStamp(FactoryService.getClockService().updateOnRecv(msg1.getTimeStamp()));
 		this.recvBuf.add(msg);
 	}
 	
