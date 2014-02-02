@@ -1,3 +1,6 @@
+import ds.model.Constants;
+import ds.model.Message;
+
 class Reader extends Thread
 {
 	public void run()
@@ -8,10 +11,32 @@ class Reader extends Thread
 		
 		while(true)
 		{
-			TimeStampedMessage rMsg = (TimeStampedMessage)msgPasser.receive();
-			if (rMsg != null)
+			Message message = msgPasser.receive();
+			
+			if (msgPasser.tsType == Constants.TimeStampType.VECTOR)
 			{
-				Logger.addToArray(rMsg);
+				TimeStampedMessage rMsg;
+				if (message != null)
+				{
+					rMsg = (TimeStampedMessage)message.getData();
+					Logger.addToArray(rMsg);
+				}
+			}
+			else if (msgPasser.tsType == Constants.TimeStampType.LOGICAL)
+			{
+				TimeStampedMessage rMsg;
+				if (message != null)
+				{
+					rMsg = (TimeStampedMessage)message.getData();
+					if (!(Logger.getHashMap().containsKey(message.getSrc())))
+					{
+						Logger.putInHashMap(message.getSrc(), rMsg);
+					}
+					else
+					{
+						Logger.addToHashMap(message.getSrc(), rMsg);
+					}
+				}
 			}
 		}
 		

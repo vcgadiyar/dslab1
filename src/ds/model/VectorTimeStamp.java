@@ -1,5 +1,7 @@
 package ds.model;
 
+import java.util.Arrays;
+
 public class VectorTimeStamp extends TimeStamp {
 	
 	private int[] vectorData;
@@ -69,6 +71,11 @@ public class VectorTimeStamp extends TimeStamp {
 			}
 			
 		}
-		return 0;
+		return returnVal;
+	}
+	
+	public void printTimeStamp()
+	{
+		System.out.println(Arrays.toString(this.vectorData));
 	}
 }

@@ -37,5 +37,10 @@ public class LogicalTimeStamp extends TimeStamp implements Comparable<LogicalTim
 		ret_val = this.time - arg0.time;
 		return ret_val;
 	}
+	
+	public void printTimeStamp()
+	{
+		System.out.println("["+this.time+"]");
+	}
 
 }
