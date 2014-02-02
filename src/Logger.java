@@ -72,26 +72,33 @@ class Logger
 				{
 					case 1:
 					{
-						System.out.println("List of Messages");
-						int i=0;
-						for(TimeStampedMessage msg: msgArray)
+						if (msgArray.size() == 0)
 						{
-							i++;
-							VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
-							System.out.println(i+"> "+ Arrays.toString(vin.getVector())+": "+msg.getData().toString());
+							System.out.println("No messages to display");
 						}
-						option = 0;
-						while(option<1 || option>i)
+						else
 						{
-							System.out.print("Select a Message: ");
-							option = reader.nextInt();
+							System.out.println("List of Messages");
+							int i=0;
+							for(TimeStampedMessage msg: msgArray)
+							{
+								i++;
+								VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
+								System.out.println(i+"> Source: "+msg.getSrc()+ Arrays.toString(vin.getVector())+": "+msg.getData().toString());
+							}
+							option = 0;
+							while(option<1 || option>i)
+							{
+								System.out.print("Select a Message: ");
+								option = reader.nextInt();
+							}
 							option = option - 1;
-						}
-						reader.nextLine();
-						System.out.println();
+							reader.nextLine();
+							System.out.println();
 						
-						printAllRelations(option);
-						System.out.println();
+							printAllRelations(option);
+							System.out.println();
+						}
 					}
 					break;
 					case 2:
@@ -119,9 +126,10 @@ class Logger
 			else if (MessagePasser.tsType == Constants.TimeStampType.LOGICAL)
 			{
 				System.out.println("Please select one of the following options");
-				System.out.println("1> View Sorted Messages");
-				System.out.println("2> Discard messages");
-				System.out.println("3> Exit");
+				System.out.println("1> Info about single message");
+				System.out.println("2> Info about all messages");
+				System.out.println("3> Discard Logs");
+				System.out.println("4> Exit");
 							
 				int option = 0;
 				while( option!=1 && option!=2 && option!=3)
@@ -135,19 +143,47 @@ class Logger
 				{
 					case 1:
 					{
-						System.out.println("List of Messages");
-						int i=0;
-						
-						for(TimeStampedMessage msg: msgArray)
+						if (msgArray.size() == 0)
 						{
-							i++;
-							LogicalTimeStamp ls = (LogicalTimeStamp)msg.getTimeStamp();
-							System.out.println(i+"> "+ ls.getTime());
+							System.out.println("No messages to display");
+						}
+						else
+						{
+							System.out.println("List of Messages");
+							int i=0;
+							for(TimeStampedMessage msg: msgArray)
+							{
+								i++;
+								LogicalTimeStamp vin = (LogicalTimeStamp)msg.getTimeStamp();
+								System.out.println(i+"> ["+ vin.getTime()+"]: "+msg.getData().toString());
+							}
+							option = 0;
+							while(option<1 || option>i)
+							{
+								System.out.print("Select a Message: ");
+								option = reader.nextInt();
+							}
+							option = option - 1;
+							reader.nextLine();
+							System.out.println();
+						
+							printAllLogicalRelations(option);
+							System.out.println();
 						}
 					}
 					break;
 					
 					case 2:
+					{
+						for (int j=0; j<msgArray.size(); j++)
+						{
+							System.out.println("Printing details for Message "+j);
+							printAllLogicalRelations(j);
+						}
+					}
+					break; 
+					
+					case 3:
 					{
 						logLock.lock();
 						msgArray.clear();
@@ -155,7 +191,7 @@ class Logger
 					}
 					break;
 					
-					case 3:
+					case 4:
 					{
 						System.exit(0);
 					}
@@ -174,15 +210,32 @@ class Logger
 		switch(ret_val)
 		{
 		case -1:
-			System.out.println(curTS.getVector().toString()+" comes before "+vTestTS.getVector().toString());
+			System.out.println(Arrays.toString(curTS.getVector())+" -> "+Arrays.toString(vTestTS.getVector()));
 			break;
 		case 0:
-			System.out.println(curTS.getVector().toString()+" is concurrent with "+vTestTS.getVector().toString());
+			System.out.println(Arrays.toString(curTS.getVector())+" || "+ Arrays.toString(vTestTS.getVector()));
 			break;
 		case 1:
-			System.out.println(curTS.getVector().toString()+" comes after "+vTestTS.getVector().toString());
+			System.out.println(Arrays.toString(curTS.getVector())+" <- "+ Arrays.toString(vTestTS.getVector()));
 			break;
 		}
+	}
+	
+	public static void printLogicalCompare(TimeStampedMessage cur, TimeStampedMessage test)
+	{
+		LogicalTimeStamp curTS = (LogicalTimeStamp)(cur.getTimeStamp());
+		TimeStamp testTS = (test.getTimeStamp());
+		LogicalTimeStamp vTestTS = (LogicalTimeStamp)testTS;
+		
+		int ret_val = curTS.compareTo(vTestTS);
+		
+		if (ret_val < 0)
+			System.out.println("["+curTS.getTime()+"] -> "+"["+ vTestTS.getTime() + "]");
+		else if (ret_val == 0)
+			System.out.println("["+curTS.getTime()+"] || "+"["+ vTestTS.getTime() + "]");
+		else
+			System.out.println("["+curTS.getTime()+"] <- "+"["+ vTestTS.getTime() + "]");
+		
 	}
 	
 	public static void printAllRelations(int option)
@@ -194,6 +247,18 @@ class Logger
 			if (j == option)
 				continue;
 			printCompare(curTstp, msgArray.get(j));							
+		}
+	}
+	
+	public static void printAllLogicalRelations(int option)
+	{
+		TimeStampedMessage curTstp = msgArray.get(option);
+		
+		for(int j=0; j<msgArray.size(); j++)
+		{
+			if (j == option)
+				continue;
+			printLogicalCompare(curTstp, msgArray.get(j));							
 		}
 	}
 }
