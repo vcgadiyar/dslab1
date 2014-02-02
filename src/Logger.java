@@ -78,7 +78,7 @@ class Logger
 						{
 							i++;
 							VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
-							System.out.println(i+"> "+ Arrays.toString(vin.getVector()));
+							System.out.println(i+"> "+ Arrays.toString(vin.getVector())+": "+msg.getData().toString());
 						}
 						option = 0;
 						while(option<1 || option>i)
