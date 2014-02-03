@@ -35,5 +35,9 @@ public class LogicalClockService extends ClockService
 		return ts;
 	}
 	
+	public void printTimeStamp()
+	{
+		System.out.println("(Vector) ["+((LogicalTimeStamp)this.timeStamp).getTime()+"]");
+	}
 	
 }

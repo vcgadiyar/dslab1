@@ -1,4 +1,6 @@
 package ds.service;
+import java.util.Arrays;
+
 import ds.model.*;
 
 class VectorClockService extends ClockService {
@@ -50,5 +52,10 @@ class VectorClockService extends ClockService {
 		TimeStamp ts = new VectorTimeStamp(this.getCurrentTime());
 		this.timeLock.unlock();
 		return ts;
+	}
+
+	public void printTimeStamp()
+	{
+		System.out.println( "(Logical)"+Arrays.toString( ((VectorTimeStamp)this.timeStamp).getVector()) );
 	}
 }

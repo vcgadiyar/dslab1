@@ -24,5 +24,7 @@ public abstract class ClockService {
 	public abstract TimeStamp updateOnSend();
 	
 	public abstract TimeStamp updateOnRecv(TimeStamp recvTs);
+	
+	public abstract void printTimeStamp();
 
 }

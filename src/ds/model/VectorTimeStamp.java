@@ -74,8 +74,4 @@ public class VectorTimeStamp extends TimeStamp {
 		return returnVal;
 	}
 	
-	public void printTimeStamp()
-	{
-		System.out.println(Arrays.toString(this.vectorData));
-	}
 }

@@ -2,6 +2,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import ds.model.Message;
+import ds.service.FactoryService;
 
 
 public class Application
@@ -39,7 +40,9 @@ public class Application
 			System.out.println("Please select one of the following options");
 			System.out.println("1> Send");
 			System.out.println("2> Receive");
-			System.out.println("3> Exit");
+			System.out.println("3> Print Current Time Stamp");
+			System.out.println("4> Increment Local Time Stamp");
+			System.out.println("5> Exit");
 			
 			int option = 0;
 			while( option!=1 && option!=2 && option!=3 )
@@ -147,8 +150,21 @@ public class Application
 					
 				break;
 				
-				
 				case 3:
+				{
+					FactoryService.getClockService().printTimeStamp();
+				}
+				break;
+				
+				case 4:
+				{
+					FactoryService.getClockService().updateOnSend();
+					System.out.println("Updated Time Stamp:");
+					FactoryService.getClockService().printTimeStamp();
+				}
+				break;
+				
+				case 5:
 				{
 					System.out.println("==========================");
 					System.out.println("  Have a Good Day!! :)");
