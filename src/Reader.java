@@ -19,7 +19,10 @@ class Reader extends Thread
 				if (message != null)
 				{
 					rMsg = (TimeStampedMessage)message.getData();
-					Logger.addToArray(rMsg);
+					if (!rMsg.isDupe())
+					{
+						Logger.addToArray(rMsg);
+					}
 				}
 			}
 			else if (msgPasser.tsType == Constants.TimeStampType.LOGICAL)
@@ -28,13 +31,16 @@ class Reader extends Thread
 				if (message != null)
 				{
 					rMsg = (TimeStampedMessage)message.getData();
-					if (!(Logger.getHashMap().containsKey(message.getSrc())))
+					if (!rMsg.isDupe())
 					{
-						Logger.putInHashMap(message.getSrc(), rMsg);
-					}
-					else
-					{
-						Logger.addToHashMap(message.getSrc(), rMsg);
+						if (!(Logger.getHashMap().containsKey(message.getSrc())))
+						{
+							Logger.putInHashMap(message.getSrc(), rMsg);
+						}
+						else
+						{
+							Logger.addToHashMap(message.getSrc(), rMsg);
+						}
 					}
 				}
 			}
