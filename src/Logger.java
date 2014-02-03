@@ -113,7 +113,7 @@ class Logger
 							{
 								i++;
 								VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
-								System.out.println(i+"> Src: "+msg.getSrc()+", Dst: "+msg.getDest()+", Message: "+msg.getData().toString()+", TimeStamp: "+ Arrays.toString(vin.getVector()));
+								System.out.println(i+"> Src: "+msg.getSrc()+", Dst: "+msg.getDest()+", Seq No:"+msg.getSeqNum()+", Kind: "+msg.getKind()+", Duplicate:"+msg.isDupe()+", Message: "+msg.getData().toString()+", TimeStamp: "+ Arrays.toString(vin.getVector()));
 							}
 						}
 					}
@@ -136,7 +136,7 @@ class Logger
 							{
 								i++;
 								VectorTimeStamp vin = (VectorTimeStamp)msg.getTimeStamp();
-								System.out.println(i+"> Src: "+msg.getSrc()+", Dst: "+msg.getDest()+", Message: "+msg.getData().toString()+", TimeStamp: "+ Arrays.toString(vin.getVector()));
+								System.out.println(i+"> Src: "+msg.getSrc()+", Dst: "+msg.getDest()+", Seq No:"+msg.getSeqNum()+", Kind: "+msg.getKind()+", Duplicate:"+msg.isDupe()+", Message: "+msg.getData().toString()+", TimeStamp: "+ Arrays.toString(vin.getVector()));
 							}
 							option = 0;
 							while(option<1 || option>i)
@@ -222,7 +222,7 @@ class Logger
 										System.out.println("->");
 									}
 									LogicalTimeStamp vin = (LogicalTimeStamp)ts.getTimeStamp();
-									System.out.println("(Src: "+ts.getSrc()+", Dst: "+ts.getDest() + ", TimeStamp: "+vin.getTime()+ ", Data: "+ ts.getData()+")");
+									System.out.println("(Src: "+ts.getSrc()+", Dst: "+ts.getDest()+ ", Seq Num"+ ts.getSeqNum()+", Kind:"+ ts.getKind()+ ", Duplicate:"+ ts.isDupe() + ", TimeStamp: "+vin.getTime()+ ", Data: "+ ts.getData()+")");
 									count++;
 									
 								}

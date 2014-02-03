@@ -25,7 +25,7 @@ public class Application
 		Node loggerNode=null;
 		for(Node node:nodes)
 		{
-			if(node.getName().equals("bob"))
+			if(node.getName().equals("logger"))
 			{
 				loggerNode = node;
 				break;
