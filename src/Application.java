@@ -45,7 +45,7 @@ public class Application
 			System.out.println("5> Exit");
 			
 			int option = 0;
-			while( option!=1 && option!=2 && option!=3 )
+			while( option!=1 && option!=2 && option!=3 && option!=4 && option!=5 )
 			{
 				System.out.print("Select Option(1 or 2 or 3) : ");
 				option = reader.nextInt();
@@ -153,6 +153,7 @@ public class Application
 				case 3:
 				{
 					FactoryService.getClockService().printTimeStamp();
+					System.out.println();
 				}
 				break;
 				
@@ -161,6 +162,7 @@ public class Application
 					FactoryService.getClockService().updateOnSend();
 					System.out.println("Updated Time Stamp:");
 					FactoryService.getClockService().printTimeStamp();
+					System.out.println();
 				}
 				break;
 				
