@@ -214,11 +214,17 @@ class Logger
 								System.out.println();
 								System.out.println();
 								System.out.println("Printing all relations for src: "+entry.getKey());
+								int count = 0;
 								for(TimeStampedMessage ts:entry.getValue())
 								{
+									if (count != 0)
+									{
+										System.out.println("->");
+									}
 									LogicalTimeStamp vin = (LogicalTimeStamp)ts.getTimeStamp();
 									System.out.println("(Src: "+ts.getSrc()+", Dst: "+ts.getDest() + ", TimeStamp: "+vin.getTime()+ ", Data: "+ ts.getData()+")");
-									System.out.println("->");
+									count++;
+									
 								}
 							}
 							
