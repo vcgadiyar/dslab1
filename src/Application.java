@@ -25,7 +25,7 @@ public class Application
 		Node loggerNode=null;
 		for(Node node:nodes)
 		{
-			if(node.getName().equals("bob"))
+			if(node.getName().equals("logger"))
 			{
 				loggerNode = node;
 				break;
@@ -62,8 +62,8 @@ public class Application
 					int i=0;
 					for(Node node:nodes)
 					{
-						if (node == loggerNode)
-							continue;
+//						if (node == loggerNode)
+//							continue;
 						i++;
 						System.out.println(i+"> "+node.getName());
 					}
