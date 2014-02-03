@@ -182,6 +182,7 @@ public class Application
 						}
 						System.out.println();
 						TimeStampedMessage tsm = new TimeStampedMessage("", "", logMessage );
+						tsm.setTimeStamp(ts);
 						
 						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", tsm );
 						msgPasser.send(logMsg);
