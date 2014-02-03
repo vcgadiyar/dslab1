@@ -2,6 +2,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import ds.model.Message;
+import ds.model.TimeStamp;
 import ds.service.FactoryService;
 
 
@@ -24,7 +25,7 @@ public class Application
 		Node loggerNode=null;
 		for(Node node:nodes)
 		{
-			if(node.getName().equals("logger"))
+			if(node.getName().equals("bob"))
 			{
 				loggerNode = node;
 				break;
@@ -47,7 +48,7 @@ public class Application
 			int option = 0;
 			while( option!=1 && option!=2 && option!=3 && option!=4 && option!=5 )
 			{
-				System.out.print("Select Option(1 or 2 or 3) : ");
+				System.out.print("Select Option(1 or 2 or 3 or 4 or 5) : ");
 				option = reader.nextInt();
 			}
 			reader.nextLine();
@@ -159,9 +160,32 @@ public class Application
 				
 				case 4:
 				{
-					FactoryService.getClockService().updateOnSend();
+					TimeStamp ts = FactoryService.getClockService().updateOnSend();
+					
 					System.out.println("Updated Time Stamp:");
 					FactoryService.getClockService().printTimeStamp();
+					String shouldLog = "";
+					while( !shouldLog.equals("y") && !shouldLog.equals("n") )
+					{
+						System.out.print("Should this event be logged (y for yes and n for no): ");
+						shouldLog = reader.nextLine();
+					}
+					System.out.println();
+					if(shouldLog.equals("y"))
+					{
+						//String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
+						String logMessage="";
+						while( logMessage.equals(""))
+						{
+							System.out.print("Event to associate with this message: ");
+							logMessage = reader.nextLine();
+						}
+						System.out.println();
+						TimeStampedMessage tsm = new TimeStampedMessage("", "", logMessage );
+						
+						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", tsm );
+						msgPasser.send(logMsg);
+					}
 					System.out.println();
 				}
 				break;
