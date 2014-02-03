@@ -128,10 +128,7 @@ public class MessagePasser{
 	
 	public TimeStampedMessage receive(){
 		if(!this.recvBuf.isEmpty()){
-			TimeStampedMessage m = this.recvBuf.remove();
-			TimeStampedMessage msg = new TimeStampedMessage(m);
-			msg.setTimeStamp(FactoryService.getClockService().updateOnRecv(m.getTimeStamp()));
-			return msg;
+			return this.recvBuf.remove();
 		}else{
 			return null;
 		}
@@ -292,12 +289,10 @@ public class MessagePasser{
 		}
 	}
 	
-	public void addToRecvBuf(TimeStampedMessage msg)
+	public void addToRecvBuf(TimeStampedMessage msg1)
 	{
-		/*
-		    TimeStampedMessage msg = new TimeStampedMessage(msg1);
-			msg.setTimeStamp(FactoryService.getClockService().updateOnRecv(msg1.getTimeStamp()));
-		 */
+	    TimeStampedMessage msg = new TimeStampedMessage(msg1);
+		msg.setTimeStamp(FactoryService.getClockService().updateOnRecv(msg1.getTimeStamp()));
 		this.recvBuf.add(msg);
 	}
 	
