@@ -1,3 +1,5 @@
+package ds.model;
+
 import ds.model.Message;
 import ds.model.TimeStamp;
 

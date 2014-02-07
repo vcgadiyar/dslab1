@@ -1,5 +1,7 @@
+package util;
 import ds.model.Constants;
 import ds.model.Message;
+import ds.model.TimeStampedMessage;
 
 class Reader extends Thread
 {

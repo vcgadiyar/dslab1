@@ -1,3 +1,4 @@
+package util;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -13,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ds.model.Constants;
 import ds.model.Message;
 import ds.model.TimeStamp;
+import ds.model.TimeStampedMessage;
 import ds.service.FactoryService;
 
 public class MessagePasser{

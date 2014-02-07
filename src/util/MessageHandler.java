@@ -1,3 +1,4 @@
+package util;
 import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -5,6 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 
 import ds.model.Message;
+import ds.model.TimeStampedMessage;
 
 public class MessageHandler extends Thread{
 	private Socket socket;

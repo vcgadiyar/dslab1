@@ -1,18 +1,25 @@
+package test;
+
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Scanner;
 
-import ds.model.Message;
+import util.MessagePasser;
+import util.Node;
 
-public class TestAlice{
+import ds.model.Message;
+import ds.model.TimeStampedMessage;
+
+public class TestBob{
 	public static void main(String[] args){
 		try{
 			System.out.println(InetAddress.getLocalHost().getHostAddress());
-			MessagePasser.createInstance("test.conf", "alice");
+			MessagePasser.createInstance("test.conf", "bob");
 			MessagePasser msgPasser = MessagePasser.getInstance();
 			
 			
-			List<Node> nodes = msgPasser.getNodeList();
+			
+List<Node> nodes = msgPasser.getNodeList();
 			
 			System.out.println("Welcome to the COMMUNICATOR!");
 			System.out.println("--------");
@@ -97,25 +104,26 @@ public class TestAlice{
 			}
 			
 			
-//			Thread.sleep(10000);
-//			System.out.println("Start sending...");
-//			Message msg = new Message("bob", "Test", "Hello");
-//			msgPasser.send(msg);
-//			//Thread.sleep(5000);
-//			System.out.println("Send another...");
-//			Message msg1 = new Message("bob", "Test", "World");
-//			msgPasser.send(msg1);
 			
-		//	Thread.sleep(5000);
+			
+			
+			
+			
+//			Thread.sleep(15000);
+//			Message msg = msgPasser.receive();
+//			System.out.println(msg.getData());
+//		//	Thread.sleep(5000);
+//			Message msg1 = msgPasser.receive();
+//			System.out.println(msg1.getData());
+//			
 //			Thread.sleep(5000);
 //			Message msg1;
 //			for(int i=0;i<15;i++)
 //			{
-//				msg1 = new Message("bob", "Test", "a to b "+i);
+//				msg1 = new Message("alice", "Test", "b to a "+i);
 //				msgPasser.send(msg1);
 //			}
 //			Thread.sleep(10000);
-//			
 //			for(int j=0;j<15;j++)
 //			{
 //				msg1 = msgPasser.receive();

@@ -1,8 +1,10 @@
+package util;
 import java.util.List;
 import java.util.Scanner;
 
 import ds.model.Message;
 import ds.model.TimeStamp;
+import ds.model.TimeStampedMessage;
 import ds.service.FactoryService;
 
 
