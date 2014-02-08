@@ -129,7 +129,7 @@ public class Application
 				{
 					Group grp = msgPasser.groups.get(groupName);
 
-					if (!grp.isMember(msgPasser.localName))
+					if (grp.isMember(msgPasser.localName))
 						i++;
 					else
 						continue;

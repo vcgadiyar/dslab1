@@ -30,6 +30,14 @@ public class TimeStampedMessage extends Message
 		this.origSrc = super.getSrc();
 		//TODO - Time stamp for group
 	}
+	
+	public TimeStampedMessage(TimeStampedMessage orig)
+	{
+		super(orig.getDest(), orig.getKind(), orig.getData());
+		this.groupName = orig.getGroupName();
+		this.origSrc = orig.getOrigSrc();
+		groupTimeStamp = new VectorTimeStamp(orig.getTimeStamp());
+	}
 
 	public TimeStamp getTimeStamp() 
 	{
@@ -39,6 +47,11 @@ public class TimeStampedMessage extends Message
 	public void setTimeStamp(TimeStamp timeStamp) 
 	{
 		this.timeStamp = timeStamp;
+	}
+	
+	public void setKind(String kind)
+	{
+		this.kind = kind;
 	}
 
 	public String getGroupName() {

@@ -9,6 +9,7 @@ import util.MessagePasser;
 import util.Node;
 import ds.model.Group;
 import ds.model.TimeStampedMessage;
+import ds.model.Constants.Kind;
 
 public class MulticastService {
 	MessagePasser msgPasser = null;
@@ -37,9 +38,9 @@ public class MulticastService {
 			//TODO - Fix this issue
 			if (node.getName().equals(msgPasser.localName))
 				continue;
-
-			mmsg.setDest(node.getName());
-			msgPasser.send(mmsg);
+			TimeStampedMessage temp = new TimeStampedMessage(mmsg);
+			temp.setDest(node.getName());
+			msgPasser.send(temp);
 		}
 	}
 	
@@ -53,7 +54,22 @@ public class MulticastService {
 			multicast(mmsg);
 	}
 	
-	public void receiveUnicast(TimeStampedMessage mmsg) {
+	public void unicast(TimeStampedMessage msg) {
+		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
+		
+		newMsg.setSrc(msgPasser.localName);
+		msgPasser.send(newMsg);
+	}
+	
+	public void receiveUnicast(TimeStampedMessage msg) {
+		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
+		
+		newMsg.setSrc(msgPasser.localName);
+		newMsg.setKind(Kind.ACK.toString());
+		msgPasser.send(newMsg);
+	}
+	
+	public void receiveAck(TimeStampedMessage mmsg) {
 		ArrayList<TimeStampedMessage> hbQueue = this.holdbackMap.get(mmsg.getGroupName());
 		
 		//TODO - Not all messages should go to the queue. Also keep track of which ones reached and which didn't.
