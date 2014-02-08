@@ -2,12 +2,16 @@ package ds.model;
 
 import ds.model.Message;
 import ds.model.TimeStamp;
+import ds.model.Constants.Kind;
 
 
 public class TimeStampedMessage extends Message 
 {
 	protected TimeStamp timeStamp;
-	
+	protected String origSender;
+	protected String groupName;
+	protected TimeStamp groupTimeStamp;
+
 	public TimeStampedMessage(Message msg) 
 	{
 		super(msg);
@@ -16,6 +20,15 @@ public class TimeStampedMessage extends Message
 	public TimeStampedMessage(String name, String kind, Object message) 
 	{
 		super(name,kind,message);
+	}
+
+	public TimeStampedMessage(String name, String kind, Object message, String groupName) 
+	{
+		super(name,kind,message);
+
+		this.groupName = groupName;
+		this.origSender = super.getSrc();
+		//TODO - Time stamp for group
 	}
 
 	public TimeStamp getTimeStamp() 

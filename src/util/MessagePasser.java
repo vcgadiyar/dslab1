@@ -1,8 +1,6 @@
 package util;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +11,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import ds.model.Constants;
 import ds.model.Group;
-import ds.model.Message;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
 import ds.service.FactoryService;
@@ -90,7 +87,6 @@ public class MessagePasser{
 	
 	public void send(TimeStampedMessage msg)
 	{
-		//TimeStampedMessage msg = new TimeStampedMessage(msg1);
 		TimeStamp ts = FactoryService.getClockService().updateOnSend();
 		msg.setTimeStamp(ts);
 		
@@ -139,7 +135,6 @@ public class MessagePasser{
 		}
 	}
 
-	
 	private void sendMsg(TimeStampedMessage msg)
 	{	
 		String dest = msg.getDest();

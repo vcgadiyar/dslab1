@@ -3,7 +3,6 @@ package util;
 import java.util.List;
 import java.util.Scanner;
 
-import ds.model.MulticastMessage;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
 import ds.model.Constants.Kind;
@@ -13,7 +12,6 @@ import ds.service.MulticastService;
 
 public class Application
 {
-	public static MessagePasser msgPasser = null;
 	public static void main(String args[]) throws Exception
 	{
 		if(args.length != 2)
@@ -25,7 +23,7 @@ public class Application
 		{
 			MessagePasser.createInstance(args[0], args[1]);
 		}
-		msgPasser = MessagePasser.getInstance();
+		MessagePasser msgPasser = MessagePasser.getInstance();
 		MulticastService mcService = new MulticastService();
 
 		List<Node> nodes = msgPasser.getNodeList();
@@ -85,7 +83,7 @@ public class Application
 				System.out.println();
 
 				String kind="";
-				while(kind.toString().equals(""))
+				while(kind.toString().equals("") || kind.toString().equals(Kind.MULTICAST.toString()))
 				{
 					System.out.print("Kind of message: ");
 					kind = reader.nextLine();
@@ -113,9 +111,8 @@ public class Application
 
 				if(shouldLog.equals("y"))
 				{
-					//String logMessage = " sent message to "+msg1.getDest()+": "+message;
 					Object logMessage = msg1;
-					TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage );
+					TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage);
 					msgPasser.send(logMsg);
 				}
 
@@ -158,8 +155,6 @@ public class Application
 				}
 				System.out.println();
 
-				TimeStampedMessage msg1 = new TimeStampedMessage("", kind, message);
-
 				i = 0;
 				String group = null;
 				for(String groupName:msgPasser.groups.keySet())
@@ -172,7 +167,7 @@ public class Application
 					}
 				}
 
-				MulticastMessage mmsg = new MulticastMessage(msg1, group, Kind.MULTICAST);
+				TimeStampedMessage mmsg = new TimeStampedMessage("", kind, message, group);
 				mcService.multicast(mmsg);
 				System.out.println();
 			}
@@ -197,7 +192,7 @@ public class Application
 					{
 						//String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
 						Object logMessage = msg1;
-						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage );
+						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage);
 						msgPasser.send(logMsg);
 					}
 				}
@@ -239,10 +234,10 @@ public class Application
 						logMessage = reader.nextLine();
 					}
 					System.out.println();
-					TimeStampedMessage tsm = new TimeStampedMessage("", "", logMessage );
+					TimeStampedMessage tsm = new TimeStampedMessage("", "", logMessage);
 					tsm.setTimeStamp(ts);
 
-					TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", tsm );
+					TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", tsm);
 					msgPasser.send(logMsg);
 				}
 				System.out.println();
