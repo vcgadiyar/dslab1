@@ -26,7 +26,6 @@ public class MessagePasser{
 	private int seqNum;
 	private Node localNode;
 	private List<Node> nodes;
-	private HashMap<String, Group> groups;
 	private List<Rule> sendRules;
 	private List<Rule> recvRules;
 	private Queue<TimeStampedMessage> sendDelayBuf;
@@ -40,6 +39,7 @@ public class MessagePasser{
 	
 	private int localIndex;
 	public static Constants.TimeStampType tsType;
+	public static HashMap<String, Group> groups;
 	
 	public List<Node> getNodeList()
 	{

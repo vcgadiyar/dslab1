@@ -27,6 +27,4 @@ public class TimeStampedMessage extends Message
 	{
 		this.timeStamp = timeStamp;
 	}
-	
-	
 }
