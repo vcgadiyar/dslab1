@@ -12,6 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ds.model.Constants;
+import ds.model.Group;
 import ds.model.Message;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
@@ -25,6 +26,7 @@ public class MessagePasser{
 	private int seqNum;
 	private Node localNode;
 	private List<Node> nodes;
+	private HashMap<String, Group> groups;
 	private List<Rule> sendRules;
 	private List<Rule> recvRules;
 	private Queue<TimeStampedMessage> sendDelayBuf;
@@ -51,6 +53,7 @@ public class MessagePasser{
 		this.seqNum = 0;
 		this.localNode = new Node();
 		this.nodes = new LinkedList<Node>();
+		this.groups = new HashMap<String, Group>();
 		this.sendRules = new LinkedList<Rule>();
 		this.recvRules = new LinkedList<Rule>();
 		this.sendDelayBuf = new LinkedList<TimeStampedMessage>();
@@ -63,7 +66,7 @@ public class MessagePasser{
 		this.ruleLock = new ReentrantLock();
 		
 		try{
-			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, this.sendRules, this.recvRules);
+			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, this.groups, this.sendRules, this.recvRules);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

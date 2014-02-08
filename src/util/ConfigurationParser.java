@@ -8,17 +8,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.yaml.snakeyaml.Yaml;
 
 import ds.model.Constants;
+import ds.model.Group;
 
 public class ConfigurationParser
 {
 	private static long lastModified;
 	
-	public static int parseConfigurationFile(String fileName, String localName, Node localNode, List<Node> nodeList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
+	public static int parseConfigurationFile(String fileName, String localName, Node localNode, List<Node> nodeList, HashMap<String, Group> groupList, List<Rule> sendRuleList, List<Rule> receiveRuleList)
 	{
 		int localIndex = -1;
 		try
@@ -47,6 +49,9 @@ public class ConfigurationParser
 		    ArrayList<HashMap> nodes = (ArrayList)level1Map.get("configuration");
 		    ArrayList<HashMap> sendRules = (ArrayList)level1Map.get("sendRules");
 		    ArrayList<HashMap> receiveRules = (ArrayList)level1Map.get("receiveRules");
+		    ArrayList<HashMap> groups = (ArrayList)level1Map.get("groups");
+		    
+		    List<Node> localNodeList = new LinkedList<Node>();
 	
 		    Node node ;
 		    
@@ -62,10 +67,12 @@ public class ConfigurationParser
 		    		localNode.setIp(node.getIp());
 		    		localNode.setPort(node.getPort());
 		    		localIndex = index;
+		    		localNodeList.add(node);
 		    	}
 		    	else
 		    	{
 		    		nodeList.add(node);
+		    		localNodeList.add(node);
 		    	}
 	    	}
 		    
@@ -95,6 +102,27 @@ public class ConfigurationParser
 				rule = new Rule(src,dest,kind,seqNum,dup,action);
 	    		receiveRuleList.add(rule);
 	    	}
+		    
+		    /* Groups parsing and list generation */
+		    System.out.println("Printing group info");
+		    Group group;
+		    for(HashMap<String,Object> groupProps : groups)
+	    	{
+		    	group = new Group(groupProps.get("name").toString());
+		    	ArrayList<String> members = new ArrayList<String>();
+		    	members = (ArrayList<String>)groupProps.get("members");
+		    	for (Node n1 : localNodeList)
+		    	{
+		    		if (members.contains(n1.getName()))
+		    		{
+		    			group.addToGroup(n1);
+		    		}
+		    	}
+		    	groupList.put(group.getName(), group);		    	
+	    	}
+		    
+	
+		    
 	   
 	    
 			input.close();
