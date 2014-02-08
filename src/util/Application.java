@@ -37,7 +37,6 @@ public class Application
 			}
 		}
 
-
 		System.out.println("Welcome to the COMMUNICATOR!");
 		System.out.println("---------------------");
 		Scanner reader = new Scanner(System.in);
@@ -52,9 +51,9 @@ public class Application
 			System.out.println("6> Exit");
 
 			int option = 0;
-			while( option!=1 && option!=2 && option!=3 && option!=4 && option!=5 )
+			while( option!=1 && option!=2 && option!=3 && option!=4 && option!=5 && option!=6)
 			{
-				System.out.print("Select Option(1 or 2 or 3 or 4 or 5) : ");
+				System.out.print("Select Option(1 or 2 or 3 or 4 or 5 or 6) : ");
 				option = reader.nextInt();
 			}
 			reader.nextLine();
@@ -128,7 +127,7 @@ public class Application
 				for(String groupName:msgPasser.groups.keySet())
 				{
 					i++;
-					System.out.println(i+"> "+msgPasser.groups.get(groupName));
+					System.out.println(i+"> "+msgPasser.groups.get(groupName).getName());
 				}
 				option = 0;
 				while(option<1 || option>msgPasser.groups.size())
@@ -137,14 +136,6 @@ public class Application
 					option = reader.nextInt();
 				}
 				reader.nextLine();
-				System.out.println();
-
-				String kind="";
-				while(kind.toString().equals(""))
-				{
-					System.out.print("Kind of message: ");
-					kind = reader.nextLine();
-				}
 				System.out.println();
 
 				String message="";
@@ -167,7 +158,7 @@ public class Application
 					}
 				}
 
-				TimeStampedMessage mmsg = new TimeStampedMessage("", kind, message, group);
+				TimeStampedMessage mmsg = new TimeStampedMessage("", Kind.MULTICAST.toString(), message, group);
 				mcService.multicast(mmsg);
 				System.out.println();
 			}
@@ -190,7 +181,6 @@ public class Application
 					System.out.println();
 					if(shouldLog.equals("y"))
 					{
-						//String logMessage = " received message from "+msg1.getSrc()+": "+msg1.getData().toString();
 						Object logMessage = msg1;
 						TimeStampedMessage logMsg = new TimeStampedMessage(loggerNode.getName(),"log", logMessage);
 						msgPasser.send(logMsg);

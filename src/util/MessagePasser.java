@@ -19,7 +19,6 @@ public class MessagePasser{
 	private static MessagePasser msgPasser;
 	
 	private String configFileName;
-	private String localName;
 	private int seqNum;
 	private Node localNode;
 	private List<Node> nodes;
@@ -37,6 +36,7 @@ public class MessagePasser{
 	private int localIndex;
 	public static Constants.TimeStampType tsType;
 	public static HashMap<String, Group> groups;
+	public static String localName;
 	
 	public List<Node> getNodeList()
 	{
@@ -144,7 +144,7 @@ public class MessagePasser{
 			if(this.node2socket.containsKey(dest)){
 				socket = this.node2socket.get(dest);
 			}else{
-				for(Node n : this.nodes){
+				for(Node n : this.nodes){					
 					if(n.getName().equals(dest)){
 						socket = new Socket(n.getIp(), n.getPort());
 						break;

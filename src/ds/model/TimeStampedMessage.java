@@ -40,4 +40,8 @@ public class TimeStampedMessage extends Message
 	{
 		this.timeStamp = timeStamp;
 	}
+
+	public String getGroupName() {
+		return groupName;
+	}
 }
