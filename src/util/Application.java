@@ -3,6 +3,7 @@ package util;
 import java.util.List;
 import java.util.Scanner;
 
+import ds.model.Group;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
 import ds.model.Constants.Kind;
@@ -126,7 +127,12 @@ public class Application
 				int i = 0;
 				for(String groupName:msgPasser.groups.keySet())
 				{
-					i++;
+					Group grp = msgPasser.groups.get(groupName);
+
+					if (!grp.isMember(msgPasser.localName))
+						i++;
+					else
+						continue;
 					System.out.println(i+"> "+msgPasser.groups.get(groupName).getName());
 				}
 				option = 0;
@@ -150,7 +156,13 @@ public class Application
 				String group = null;
 				for(String groupName:msgPasser.groups.keySet())
 				{
-					i++;
+					Group grp = msgPasser.groups.get(groupName);
+
+					if (!grp.isMember(msgPasser.localName))
+						i++;
+					else
+						continue;
+
 					if (i == option)
 					{
 						group = groupName;
@@ -159,11 +171,12 @@ public class Application
 				}
 
 				TimeStampedMessage mmsg = new TimeStampedMessage("", Kind.MULTICAST.toString(), message, group);
+				mmsg.setSrc(msgPasser.localName);
 				mcService.multicast(mmsg);
 				System.out.println();
 			}
 			break;
-			
+
 			case 3:
 			{
 				TimeStampedMessage msg1 = msgPasser.receive();

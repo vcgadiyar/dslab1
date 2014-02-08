@@ -8,7 +8,7 @@ import ds.model.Constants.Kind;
 public class TimeStampedMessage extends Message 
 {
 	protected TimeStamp timeStamp;
-	protected String origSender;
+	protected String origSrc;
 	protected String groupName;
 	protected TimeStamp groupTimeStamp;
 
@@ -27,7 +27,7 @@ public class TimeStampedMessage extends Message
 		super(name,kind,message);
 
 		this.groupName = groupName;
-		this.origSender = super.getSrc();
+		this.origSrc = super.getSrc();
 		//TODO - Time stamp for group
 	}
 
@@ -43,5 +43,13 @@ public class TimeStampedMessage extends Message
 
 	public String getGroupName() {
 		return groupName;
+	}
+
+	public String getOrigSrc() {
+		return origSrc;
+	}
+
+	public void setOrigSrc(String origSrc) {
+		this.origSrc = origSrc;
 	}
 }

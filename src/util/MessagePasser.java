@@ -10,6 +10,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ds.model.Constants;
+import ds.model.Constants.Kind;
 import ds.model.Group;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
@@ -204,6 +205,10 @@ public class MessagePasser{
 		if(action == null){
 			this.recvBufLock.lock();
 			try{
+				if (msg.getKind().equals(Kind.MULTICAST.toString()))
+				{
+					
+				}
 				this.addToRecvBuf(msg);
 				this.clearRecvDelayBuf();
 			}finally{

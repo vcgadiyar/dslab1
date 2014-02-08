@@ -47,5 +47,13 @@ public class Group {
 		}
 	}
 	
-	
+	public boolean isMember(String nodeName)
+	{
+		for (Node node : this.members) {
+			if (node.getName().equals(nodeName))
+				return true;
+		}
+		
+		return false;
+	}
 }
