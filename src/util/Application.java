@@ -25,7 +25,7 @@ public class Application
 			MessagePasser.createInstance(args[0], args[1]);
 		}
 		MessagePasser msgPasser = MessagePasser.getInstance();
-		MulticastService mcService = new MulticastService();
+		MulticastService mcService = FactoryService.getMultiCastService();
 
 		List<Node> nodes = msgPasser.getNodeList();
 		Node loggerNode=null;
@@ -123,22 +123,26 @@ public class Application
 
 			case 2:
 			{
-				System.out.println("Please select a multicast group: ");
 				int i = 0;
-				for(String groupName:msgPasser.groups.keySet())
-				{
-					Group grp = msgPasser.groups.get(groupName);
-
-					if (grp.isMember(msgPasser.localName))
-						i++;
-					else
-						continue;
-					System.out.println(i+"> "+msgPasser.groups.get(groupName).getName());
-				}
 				option = 0;
 				while(option<1 || option>msgPasser.groups.size())
 				{
-					System.out.print("Select a multicast group: ");
+					System.out.println("Select a multicast group: ");
+					i = 0;
+					for(String groupName:msgPasser.groups.keySet())
+					{						
+						Group grp = msgPasser.groups.get(groupName);
+
+						if (grp.isMember(msgPasser.localName))
+						{
+							i++;
+							System.out.println();
+							System.out.println(i+"> "+grp.getName());
+							grp.printGroupInfo();
+						}
+						else
+							continue;
+					}
 					option = reader.nextInt();
 				}
 				reader.nextLine();
@@ -158,7 +162,7 @@ public class Application
 				{
 					Group grp = msgPasser.groups.get(groupName);
 
-					if (!grp.isMember(msgPasser.localName))
+					if (grp.isMember(msgPasser.localName))
 						i++;
 					else
 						continue;
@@ -169,8 +173,21 @@ public class Application
 						break;
 					}
 				}
-
+				
+				System.out.println("Selected group: "+group);
 				TimeStampedMessage mmsg = new TimeStampedMessage("", Kind.MULTICAST.toString(), message, group);
+				Group selectedGroup = msgPasser.groups.get(group);
+				TimeStamp gts = selectedGroup.updateGroupTSOnSend(msgPasser.localName);
+				
+				if (gts == null)
+				{
+					System.out.println("Wrong group or wrong node");
+					continue;
+				}
+				
+				/* Set the group TimeStamp */
+				mmsg.setTimeStamp(gts);
+				
 				mmsg.setSrc(msgPasser.localName);
 				mcService.multicast(mmsg);
 				System.out.println();

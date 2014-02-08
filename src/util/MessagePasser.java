@@ -51,7 +51,7 @@ public class MessagePasser{
 		this.seqNum = 0;
 		this.localNode = new Node();
 		this.nodes = new LinkedList<Node>();
-		this.groups = new HashMap<String, Group>();
+		groups = new HashMap<String, Group>();
 		this.sendRules = new LinkedList<Rule>();
 		this.recvRules = new LinkedList<Rule>();
 		this.sendDelayBuf = new LinkedList<TimeStampedMessage>();
@@ -64,7 +64,7 @@ public class MessagePasser{
 		this.ruleLock = new ReentrantLock();
 		
 		try{
-			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, this.groups, this.sendRules, this.recvRules);
+			this.localIndex = ConfigurationParser.parseConfigurationFile(configFileName, localName, localNode, this.nodes, groups, this.sendRules, this.recvRules);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -207,10 +207,13 @@ public class MessagePasser{
 			try{
 				if (msg.getKind().equals(Kind.MULTICAST.toString()))
 				{
-					
+					FactoryService.getMultiCastService().receiveMulticast(msg);
 				}
-				this.addToRecvBuf(msg);
-				this.clearRecvDelayBuf();
+				else
+				{
+					this.addToRecvBuf(msg);
+					this.clearRecvDelayBuf();
+				}
 			}finally{
 				this.recvBufLock.unlock();
 			}

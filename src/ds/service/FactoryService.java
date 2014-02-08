@@ -7,6 +7,7 @@ public class FactoryService
 
 	public static Constants.TimeStampType clockServiceType = Constants.TimeStampType.NONE;
 	public static ClockService clockService = null;
+	public static MulticastService mcService = null;
 	static int numProcesses=0;
 	static int currProcIndex = 0;
 	
@@ -35,5 +36,14 @@ public class FactoryService
 			}
 		}
 		return clockService;
+	}
+	
+	public static MulticastService getMultiCastService()
+	{
+		if (mcService == null)
+		{
+			mcService = new MulticastService();
+		}
+		return mcService;
 	}
 }

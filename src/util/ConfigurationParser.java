@@ -104,7 +104,6 @@ public class ConfigurationParser
 	    	}
 		    
 		    /* Groups parsing and list generation */
-		    System.out.println("Printing group info");
 		    Group group;
 		    for(HashMap<String,Object> groupProps : groups)
 	    	{

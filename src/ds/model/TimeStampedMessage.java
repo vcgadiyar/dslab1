@@ -49,6 +49,17 @@ public class TimeStampedMessage extends Message
 		this.timeStamp = timeStamp;
 	}
 	
+	/* Get and set Group TimeStamp */
+	public TimeStamp getGroupTimeStamp()
+	{
+		return this.groupTimeStamp;
+	}
+	
+	public void setGroupTimeStamp(TimeStamp ts)
+	{
+		this.groupTimeStamp = ts;
+	}
+	
 	public void setKind(String kind)
 	{
 		this.kind = kind;

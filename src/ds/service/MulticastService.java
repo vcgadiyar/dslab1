@@ -45,11 +45,12 @@ public class MulticastService {
 	}
 	
 	public void receiveMulticast(TimeStampedMessage mmsg) {
-		ArrayList<TimeStampedMessage> hbQueue = this.holdbackMap.get(mmsg.getGroupName());
+		ArrayList<TimeStampedMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 		
 		//TODO - Not all messages should go to the queue. Also keep track of which ones reached and which didn't.
 		hbQueue.add(mmsg);
 		
+		/* Re-multicast if this is the original sent message */
 		if (mmsg.getSrc().equals(mmsg.getOrigSrc()))
 			multicast(mmsg);
 	}
