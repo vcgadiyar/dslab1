@@ -117,7 +117,8 @@ public class ConfigurationParser
 		    			group.addToGroup(n1);
 		    		}
 		    	}
-		    	groupList.put(group.getName(), group);		    	
+		    	group.createGroupTimeStamp(group.getMemberArray().size());
+		    	groupList.put(group.getName(), group);	
 	    	}
 		    
 	
