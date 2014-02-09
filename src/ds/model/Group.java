@@ -30,6 +30,11 @@ public class Group {
 		return this.groupTS;
 	}
 	
+	public void setCurrentGroupTimeStamp(VectorTimeStamp ts)
+	{
+		this.groupTS = ts;
+	}
+	
 	public TimeStamp updateGroupTSOnSend(String name)
 	{
 		int index = this.getIndexOf(name);
@@ -44,6 +49,28 @@ public class Group {
 		this.groupLock.unlock();
 		return ts;
 	}
+	
+	public void updateGroupTSOnRecv(TimeStamp recvTs, String name)
+	{
+		VectorTimeStamp recvTS = (VectorTimeStamp)recvTs;
+		
+		int index = this.getIndexOf(name);
+		if (index == -1)
+		{
+			System.out.println("Arraylist doesn't contain element");
+		}
+		
+		this.groupLock.lock();
+		for (int i=0; i < this.groupTS.getVectorLength() ; i++)
+		{
+			if (this.groupTS.getVector()[i] < recvTS.getVector()[i])
+			{
+				this.groupTS.setVector(i, recvTS.getVector()[i]);
+			}
+		}
+		this.groupTS.setVector(index, (this.groupTS.getVector()[index] + 1));
+		this.groupLock.unlock();
+	}	
 	
 	public void addToGroup(Node n)
 	{

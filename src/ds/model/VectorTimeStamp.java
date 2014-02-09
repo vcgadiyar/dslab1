@@ -72,6 +72,5 @@ public class VectorTimeStamp extends TimeStamp {
 			
 		}
 		return returnVal;
-	}
-	
+	}	
 }

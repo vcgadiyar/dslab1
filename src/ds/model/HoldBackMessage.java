@@ -3,11 +3,11 @@ package ds.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import util.Application;
 import util.MessagePasser;
 import util.Node;
 
 public class HoldBackMessage implements Comparable<HoldBackMessage> {
+
 	
 	TimeStampedMessage ts;
 	HashMap <String, Boolean> acknowledgement;
@@ -38,7 +38,8 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		Group grp;
 		
 		try {
-			grp = MessagePasser.getInstance().groups.get(ts.getGroupName());
+			MessagePasser.getInstance();
+			grp = MessagePasser.groups.get(ts.getGroupName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -59,7 +60,8 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		Group grp;
 		
 		try {
-			grp = MessagePasser.getInstance().groups.get(ts.getGroupName());
+			MessagePasser.getInstance();
+			grp = MessagePasser.groups.get(ts.getGroupName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return unicastList;
@@ -73,7 +75,7 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		
 		return unicastList;
 	}
-	
+	/*
 	public int compareTo(HoldBackMessage hbMsg)
 	{
 		int returnVal = 0;
@@ -106,4 +108,39 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		}
 		return returnVal;
 	}
+	*/
+	@Override
+	public int compareTo(HoldBackMessage hbm)
+	{
+		int returnVal = 0;
+		VectorTimeStamp vts = (hbm.getMessage().getGroupTimeStamp());
+		VectorTimeStamp current = (this.getMessage().getGroupTimeStamp());
+		for(int i=0; i<vts.getVectorLength(); i++)
+		{
+			if(current.getVector()[i] > vts.getVector()[i] )
+			{
+				if(returnVal==0)
+				{
+					returnVal = 1;
+				}
+				else if (returnVal<0)
+				{
+					return 0;
+				}
+			}
+			else if(current.getVector()[i] < vts.getVector()[i] )
+			{
+				if(returnVal == 0)
+				{
+					returnVal = -1;
+				}
+				else if(returnVal>0)
+				{
+					return 0;
+				}
+			}
+			
+		}
+		return returnVal;
+	}	
 }
