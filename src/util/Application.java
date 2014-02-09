@@ -28,6 +28,17 @@ public class Application
 		{
 			MessagePasser.createInstance(args[0], args[1]);
 		}
+		
+		Scanner reader = new Scanner(System.in);
+		
+		System.out.println("Welcome to the COMMUNICATOR!");
+		int option = 0;
+		System.out.println("Please enter the interval time for ack timeout(sec) : ");
+		intervalTime = reader.nextLong() * 1000;
+		reader.nextLine();
+		System.out.println();
+		System.out.println("---------------------");
+		
 		MessagePasser msgPasser = MessagePasser.getInstance();
 		MulticastService mcService = FactoryService.getMultiCastService();
 
@@ -41,16 +52,6 @@ public class Application
 				break;
 			}
 		}
-		
-		Scanner reader = new Scanner(System.in);
-		
-		System.out.println("Welcome to the COMMUNICATOR!");
-		int option = 0;
-		System.out.println("Please enter the interval time for ack timeout(sec) : ");
-		intervalTime = reader.nextLong() * 1000;
-		reader.nextLine();
-		System.out.println();
-		System.out.println("---------------------");
 
 		while(true)
 		{
