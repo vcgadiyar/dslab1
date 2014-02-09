@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import util.MessagePasser;
+import util.MulticastDelivery;
 import util.Node;
 import ds.model.Constants.Kind;
 import ds.model.*;
@@ -29,6 +30,16 @@ public class MulticastService {
 				ArrayList<HoldBackMessage> deliverQueue = new ArrayList<HoldBackMessage>();
 				holdbackMap.put(grpName, grpHoldbackQueue);
 				deliverMap.put(grpName, deliverQueue);
+			}
+			
+			for (String groupName : msgPasser.groups.keySet()) {
+				Group grp = msgPasser.groups.get(groupName);
+
+				if (grp.isMember(msgPasser.localName))
+				{
+					MulticastDelivery deliver = new MulticastDelivery(groupName);
+					deliver.start();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

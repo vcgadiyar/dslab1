@@ -73,16 +73,6 @@ public class MessagePasser{
 
 		SocketListener socketListener = new SocketListener(this.localNode);
 		socketListener.start();
-
-		for (String groupName : groups.keySet()) {
-			Group grp = groups.get(groupName);
-
-			if (grp.isMember(this.localName))
-			{
-				MulticastDelivery deliver = new MulticastDelivery(groupName);
-				deliver.start();
-			}
-		}
 	}
 
 	public static void createInstance(String configFileName, String localName){
