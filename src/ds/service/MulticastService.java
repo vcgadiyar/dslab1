@@ -177,7 +177,7 @@ public class MulticastService {
 
 		for (int i=0; i< t1.getVectorLength(); i++)
 		{
-			result = result + (t1.getVector()[i] - t2.getVector()[i]);
+			result = result + Math.abs(t1.getVector()[i] - t2.getVector()[i]);
 		}
 
 		return result;		
