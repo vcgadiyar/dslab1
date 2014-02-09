@@ -6,6 +6,10 @@ public class Message implements Serializable{
 	protected String dest;
 	protected String kind;
 	protected Object data;
+	public void setData(Object data) {
+		this.data = data;
+	}
+
 	protected int seqNum;
 	protected boolean isDupe;
 	
