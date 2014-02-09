@@ -35,7 +35,8 @@ public class TimeStampedMessage extends Message
 		super(orig.getDest(), orig.getKind(), orig.getData());
 		this.groupName = orig.getGroupName();
 		this.origSrc = orig.getOrigSrc();
-		groupTimeStamp = new VectorTimeStamp(orig.getTimeStamp());
+		this.timeStamp = orig.getTimeStamp();
+		this.groupTimeStamp = new VectorTimeStamp(orig.getTimeStamp());
 	}
 
 	public TimeStamp getTimeStamp() 

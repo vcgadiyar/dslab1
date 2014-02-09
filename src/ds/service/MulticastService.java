@@ -43,7 +43,7 @@ public class MulticastService {
 		}
 	}
 	
-	public void receiveMulticast(TimeStampedMessage mmsg) throws Exception {
+	public void receiveMulticast(TimeStampedMessage mmsg)  {
 		ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 		
 		/* If message is not already there, do this */
@@ -51,31 +51,35 @@ public class MulticastService {
 		if (hmsg == null)
 		{
 			Group selectedGroup = msgPasser.groups.get(mmsg.getGroupName());
-			hmsg = new HoldBackMessage(mmsg, selectedGroup.numOfMembers());
+			hmsg = new HoldBackMessage(mmsg, (selectedGroup.numOfMembers()-1));
 			hmsg.decrementCounter();
+			
+			/* Take the Lock and re-order Arraylist before adding into HBQ */
 			hbQueue.add(hmsg);			
 		}
 		
 		else
 		{
 			/* Else just decrement the counter for the message received */
-			hmsg.decrementCounter();
-			
-			/* Deliver to Receive Buffer if counter is zero */
-			if (hmsg.getCounter() == 0)
-			{
-				int index = hbQueue.indexOf(hmsg);
-				HoldBackMessage reqMsg = hbQueue.remove(index);
-				TimeStampedMessage reqTs = reqMsg.getMessage();
-				MessagePasser msgPasser;
-				msgPasser = MessagePasser.getInstance();
-				msgPasser.addMsgToBuf(reqTs);
-			}			
+			hmsg.decrementCounter();		
 		}		
+		
+		/* Deliver to Receive Buffer if counter is zero */
+		if (hmsg.getCounter() == 0)
+		{
+			int index = hbQueue.indexOf(hmsg);
+			HoldBackMessage reqMsg = hbQueue.remove(index);
+			TimeStampedMessage reqTs = reqMsg.getMessage();
+			/* Add to recv buffer only if no other messages before this */
+			msgPasser.addToRecvBuf(reqTs);
+		}	
 		
 		/* Re-multicast if this is the original sent message */
 		if (mmsg.getSrc().equals(mmsg.getOrigSrc()))
-			multicast(mmsg);
+		{
+			mmsg.setSrc(msgPasser.localName);
+			this.multicast(mmsg);
+		}
 	}
 	
 	/* Check if a msg exists in the Arraylist */

@@ -199,8 +199,7 @@ public class MessagePasser{
 	}
 	
 	public void addMsgToBuf(TimeStampedMessage msg)
-	{
-		
+	{	
 		String action = this.matchRecvRule(msg);
 		if(action == null){
 			this.recvBufLock.lock();

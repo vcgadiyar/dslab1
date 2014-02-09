@@ -194,6 +194,7 @@ public class Application
 				mmsg.setTimeStamp(gts);
 				
 				mmsg.setSrc(msgPasser.localName);
+				mmsg.setOrigSrc(msgPasser.localName);
 				mcService.multicast(mmsg);
 				System.out.println();
 			}
