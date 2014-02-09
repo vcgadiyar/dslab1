@@ -74,7 +74,10 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		}
 
 		for (Node node : grp.getMemberArray()) {
-			if (acknowledgement.get(node.getName()) != true) {
+			if (!acknowledgement.containsKey(node.getName())) {
+				unicastList.add(node.getName());
+			}
+			else if (acknowledgement.get(node.getName()) != true) {
 				unicastList.add(node.getName());
 			}
 		}
