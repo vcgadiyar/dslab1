@@ -214,16 +214,7 @@ public class MessagePasser{
 		if(action == null){
 			this.recvBufLock.lock();
 			try{
-				if (FactoryService.getMultiCastService().handleMulticastService(msg))
-				{
-					try {
-						FactoryService.getMultiCastService().receiveMulticast(msg);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				else
+				if (!FactoryService.getMultiCastService().handleMulticastService(msg))
 				{
 					this.addToRecvBuf(msg);
 					this.clearRecvDelayBuf();
