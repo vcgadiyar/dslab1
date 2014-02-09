@@ -214,7 +214,7 @@ public class MessagePasser{
 		if(action == null){
 			this.recvBufLock.lock();
 			try{
-				if (msg.getKind().equals(Kind.MULTICAST.toString()))
+				if (FactoryService.getMultiCastService().handleMulticastService(msg))
 				{
 					try {
 						FactoryService.getMultiCastService().receiveMulticast(msg);

@@ -54,10 +54,8 @@ public class MulticastService {
 			msgPasser.send(temp);
 		}
 	}
-
-	public void receiveMulticast(TimeStampedMessage mmsg)  {
-
-		hbQueueLock.lock();
+	
+	public void updateHoldBackQueue(TimeStampedMessage mmsg) {
 		ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 		Group selectedGroup = msgPasser.groups.get(mmsg.getGroupName());
 
@@ -73,7 +71,6 @@ public class MulticastService {
 			hbQueue.add(hmsg);
 			Collections.sort(hbQueue);
 		}
-
 		else
 		{
 			/* Else just decrement the counter for the message received */
@@ -85,6 +82,12 @@ public class MulticastService {
 		{
 			this.causalOrder(selectedGroup.getName());
 		}	
+	}
+
+	public void receiveMulticast(TimeStampedMessage mmsg)  {
+
+		hbQueueLock.lock();
+		updateHoldBackQueue(mmsg);
 
 		/* Re-multicast if this is the original sent message */
 		if (mmsg.getSrc().equals(mmsg.getOrigSrc()))
@@ -92,8 +95,8 @@ public class MulticastService {
 			mmsg.setSrc(msgPasser.localName);
 			this.multicast(mmsg);
 		}
+		
 		hbQueueLock.unlock();
-
 	}
 
 	/* Check if a msg exists in the Arraylist */
@@ -140,7 +143,7 @@ public class MulticastService {
 		ArrayList<HoldBackMessage> hbqueue = holdbackMap.get(groupName);
 		Group selectedGroup = msgPasser.groups.get(groupName);
 		VectorTimeStamp cmpTS;
-		//for (HoldBackMessage hbm : hbqueue)
+
 		for (Iterator<HoldBackMessage> it = hbqueue.iterator(); it.hasNext(); ) 
 		{
 			HoldBackMessage hbm = it.next();
@@ -148,23 +151,25 @@ public class MulticastService {
 			cmpTS = (VectorTimeStamp)selectedGroup.getCurrentGroupTimeStamp();
 			result = this.getTSDiff(cmpTS, hbm.getMessage().getGroupTimeStamp());
 
-			/* Add to receive buffer on satisfaction of these 2 conditions */
-			if (hbm.isReadyToBeDelivered() && (result <= 1))
-			{
-				int index = hbqueue.indexOf(hbm);
-				HoldBackMessage reqMsg = hbqueue.get(index);
-				it.remove();
-				TimeStampedMessage reqTs = reqMsg.getMessage();
+			if (cmpTS.compareTo(hbm.getMessage().getGroupTimeStamp()) != 1)
+			{			
+				/* Add to receive buffer on satisfaction of these 2 conditions */
+				if (hbm.isReadyToBeDelivered() && (result <= 1))
+				{
+					int index = hbqueue.indexOf(hbm);
+					HoldBackMessage reqMsg = hbqueue.get(index);
+					it.remove();
+					TimeStampedMessage reqTs = reqMsg.getMessage();
 
-				/* Add to recv buffer only if no other messages before this */
-				msgPasser.addToRecvBuf(reqTs);
+					/* Add to recv buffer only if no other messages before this */
+					msgPasser.addToRecvBuf(reqTs);
 
-				/* Update the TimeStamp after putting in recv buffer */ 
-				selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);				
-			}			
+					/* Update the TimeStamp after putting in recv buffer */ 
+					selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);				
+				}
+			}
 		}
 	}
-
 	/* Get TimeStamp difference between 2 Vector TimeStamps */
 	public int getTSDiff(VectorTimeStamp t1, VectorTimeStamp t2)
 	{
@@ -189,23 +194,35 @@ public class MulticastService {
 	}
 
 	public void receiveUnicast(TimeStampedMessage msg) {
+		updateHoldBackQueue(msg);
 		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
 
 		newMsg.setSrc(msgPasser.localName);
 		newMsg.setKind(Kind.ACK.toString());
 		msgPasser.send(newMsg);
 	}
-
-	public void receiveAck(TimeStampedMessage mmsg) {
-		ArrayList<HoldBackMessage> hbQueue = this.holdbackMap.get(mmsg.getGroupName());
-
-		//TODO - Not all messages should go to the queue. Also keep track of which ones reached and which didn't.
-		//hbQueue.add(mmsg);
-
-		//msgPasser.send(mmsg);
+	
+	public void receiveAck(TimeStampedMessage msg) {
+		updateHoldBackQueue(msg);
 	}
 
 	public HashMap<String, ArrayList<HoldBackMessage>> getHoldbackMap() {
 		return holdbackMap;
+	}
+	
+	public boolean handleMulticastService(TimeStampedMessage msg) {
+		if (msg.getKind().equals(Kind.MULTICAST.toString())) {
+			receiveMulticast(msg);
+			return true;
+		}
+		else if (msg.getKind().equals(Kind.UNICAST.toString())) {
+			receiveUnicast(msg);
+			return true;
+		}
+		else if (msg.getKind().equals(Kind.ACK.toString())) {
+			receiveAck(msg);
+			return true;
+		}
+		return false;
 	}
 }
