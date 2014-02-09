@@ -33,9 +33,10 @@ public class MulticastDelivery extends Thread {
 			ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(groupName);
 			ArrayList<String> unicastList = new ArrayList<String>();
 			
-			Collections.sort(hbQueue);
+			//Collections.sort(hbQueue);
 			
 			for (HoldBackMessage holdBackMessage : hbQueue) {
+				/*
 				if (holdBackMessage.isReadyToBeDelivered())
 				{
 					if (checkIfOkToDeliver(holdBackMessage, hbQueue))
@@ -49,6 +50,7 @@ public class MulticastDelivery extends Thread {
 						}
 					}
 				}
+				*/
 				
 				unicastList = holdBackMessage.getRemainingAckList();
 				
