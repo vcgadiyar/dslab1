@@ -240,10 +240,11 @@ public class MulticastService {
 	public void receiveUnicast(TimeStampedMessage msg) {
 		updateHoldBackQueue(msg);
 		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
+		String destination = msg.getSrc();
 
 		newMsg.setSrc(msgPasser.localName);
 		newMsg.setKind(Kind.ACK.toString());
-		newMsg.setDest(msg.getDest());
+		newMsg.setDest(destination);
 		
 		msgPasser.send(newMsg);
 	}
