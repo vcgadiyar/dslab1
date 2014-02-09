@@ -33,6 +33,9 @@ public class TimeStampedMessage extends Message
 	public TimeStampedMessage(TimeStampedMessage orig)
 	{
 		super(orig.getDest(), orig.getKind(), orig.getData());
+		this.setDest(orig.getDest());
+		this.setSeqNum(orig.getSeqNum());
+		this.setDupe(orig.isDupe());
 		this.groupName = orig.getGroupName();
 		this.origSrc = orig.getOrigSrc();
 		this.timeStamp = orig.getTimeStamp();
