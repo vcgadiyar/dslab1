@@ -39,6 +39,7 @@ public class MulticastService {
 			ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 			HoldBackMessage hbMsb = new HoldBackMessage(mmsg);
 			hbMsb.addAck(msgPasser.localName);
+			hbMsb.getMessage().setTimeStamp(FactoryService.getClockService().getCurrentTime());
 			hbQueue.add(hbMsb);
 		}
 
@@ -177,12 +178,14 @@ public class MulticastService {
 		return result;		
 	}
 
-	public void unicastSend(String destination, TimeStampedMessage msg)
+	public void sendUnicast(String destination, TimeStampedMessage msg)
 	{
-		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
+		TimeStampedMessage uniMsg = new TimeStampedMessage(msg);
 
-		newMsg.setSrc(msgPasser.localName);
-		msgPasser.send(newMsg);
+		uniMsg.setSrc(msgPasser.localName);
+		uniMsg.setDest(destination);
+		uniMsg.setKind(Kind.UNICAST.toString());
+		msgPasser.send(uniMsg);
 	}
 
 	public void receiveUnicast(TimeStampedMessage msg) {
