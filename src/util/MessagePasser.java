@@ -207,7 +207,12 @@ public class MessagePasser{
 			try{
 				if (msg.getKind().equals(Kind.MULTICAST.toString()))
 				{
-					FactoryService.getMultiCastService().receiveMulticast(msg);
+					try {
+						FactoryService.getMultiCastService().receiveMulticast(msg);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				else
 				{
