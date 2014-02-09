@@ -68,7 +68,6 @@ public class Group {
 				this.groupTS.setVector(i, recvTS.getVector()[i]);
 			}
 		}
-		this.groupTS.setVector(index, (this.groupTS.getVector()[index] + 1));
 		this.groupLock.unlock();
 	}	
 	

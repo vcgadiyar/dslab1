@@ -128,13 +128,13 @@ public class MulticastService {
 	{
 		ArrayList<HoldBackMessage> hbqueue = holdbackMap.get(groupName);
 		Group selectedGroup = msgPasser.groups.get(groupName);
-		VectorTimeStamp cmpTS = (VectorTimeStamp)selectedGroup.getCurrentGroupTimeStamp();
-		
+		VectorTimeStamp cmpTS;
 		//for (HoldBackMessage hbm : hbqueue)
 		for (Iterator<HoldBackMessage> it = hbqueue.iterator(); it.hasNext(); ) 
 		{
 			HoldBackMessage hbm = it.next();
 			int result = 0;
+			cmpTS = (VectorTimeStamp)selectedGroup.getCurrentGroupTimeStamp();
 			result = this.getTSDiff(cmpTS, hbm.getMessage().getGroupTimeStamp());
 			
 			/* Add to receive buffer on satisfaction of these 2 conditions */
