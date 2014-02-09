@@ -52,8 +52,9 @@ public class MulticastDelivery extends Thread {
 				
 				unicastList = holdBackMessage.getRemainingAckList();
 				
-				for (String name : unicastList) {
-					//TODO - Unicast a message
+				for (String node : unicastList) {
+					TimeStampedMessage uniMsg = new TimeStampedMessage(holdBackMessage.getMessage());
+					FactoryService.mcService.unicastSend(node, uniMsg);
 				}
 			}
 			

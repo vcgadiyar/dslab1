@@ -15,7 +15,7 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 	public HoldBackMessage()
 	{}
 
-	public HoldBackMessage(TimeStampedMessage ts, int counter) {
+	public HoldBackMessage(TimeStampedMessage ts) {
 		this.ts = new TimeStampedMessage(ts);
 		this.acknowledgement = new HashMap<String, Boolean>();
 	}

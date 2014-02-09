@@ -22,7 +22,7 @@ public class MulticastService {
 			msgPasser = MessagePasser.getInstance();
 			holdbackMap = new HashMap<String, ArrayList<HoldBackMessage>>();
 			hbQueueLock = new ReentrantLock();
-			
+
 			for (String grpName : msgPasser.groups.keySet()) {				
 				ArrayList<HoldBackMessage> grpHoldbackQueue = new ArrayList<HoldBackMessage>();
 				holdbackMap.put(grpName, grpHoldbackQueue);
@@ -35,46 +35,56 @@ public class MulticastService {
 	public void multicast(TimeStampedMessage mmsg) {
 		Group currGrp = msgPasser.groups.get(mmsg.getGroupName());
 
+		if (mmsg.getOrigSrc().equals(mmsg.getSrc())) {
+			ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
+			HoldBackMessage hbMsb = new HoldBackMessage(mmsg);
+			hbMsb.addAck(msgPasser.localName);
+			hbQueue.add(hbMsb);
+		}
+
 		for (Node node : currGrp.getMemberArray()) {
 			//TODO - Fix this issue
-			if (node.getName().equals(msgPasser.localName))
+			if (node.getName().equals(msgPasser.localName)) {
+
 				continue;
+			}
 			TimeStampedMessage temp = new TimeStampedMessage(mmsg);
 			temp.setDest(node.getName());
 			msgPasser.send(temp);
 		}
 	}
-	
+
 	public void receiveMulticast(TimeStampedMessage mmsg)  {
-		
+
 		hbQueueLock.lock();
 		ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 		Group selectedGroup = msgPasser.groups.get(mmsg.getGroupName());
-		
+
 		/* If message is not already there, do this */
 		HoldBackMessage hmsg = this.checkExists(mmsg);
 		if (hmsg == null)
 		{
-			hmsg = new HoldBackMessage(mmsg, (selectedGroup.numOfMembers()-1));
+			hmsg = new HoldBackMessage(mmsg);
 			hmsg.addAck(mmsg.getSrc());
-			
+			hmsg.addAck(msgPasser.localName);
+
 			/* Take the Lock and re-order Arraylist after adding into HBQ */
 			hbQueue.add(hmsg);
 			Collections.sort(hbQueue);
 		}
-		
+
 		else
 		{
 			/* Else just decrement the counter for the message received */
 			hmsg.addAck(mmsg.getSrc());		
 		}		
-		
+
 		/* Deliver to Receive Buffer if counter is zero */
 		if (hmsg.isReadyToBeDelivered() == true)
 		{
 			this.causalOrder(selectedGroup.getName());
 		}	
-		
+
 		/* Re-multicast if this is the original sent message */
 		if (mmsg.getSrc().equals(mmsg.getOrigSrc()))
 		{
@@ -82,14 +92,14 @@ public class MulticastService {
 			this.multicast(mmsg);
 		}
 		hbQueueLock.unlock();
-		
+
 	}
-	
+
 	/* Check if a msg exists in the Arraylist */
 	public HoldBackMessage checkExists(TimeStampedMessage msg)
 	{
 		ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(msg.getGroupName());
-		
+
 		for (HoldBackMessage hmsg: hbQueue)
 		{
 			boolean ret = false;
@@ -102,14 +112,14 @@ public class MulticastService {
 		/* Not found */
 		return null;		
 	}
-	
+
 	public boolean compareTS(int [] a1, int [] a2)
 	{
 		if (a1.length != a2.length)
 		{
 			return false;
 		}
-		
+
 		for (int i=0; i<a1.length ; i++)
 		{
 			if (a1[i] != a2[i])
@@ -119,7 +129,7 @@ public class MulticastService {
 		}
 		return true;
 	}
-	
+
 	/* Function to causal order to check whether
 	 * any message from the Hold-Back queue can be inserted into
 	 * the receive buffer.
@@ -136,7 +146,7 @@ public class MulticastService {
 			int result = 0;
 			cmpTS = (VectorTimeStamp)selectedGroup.getCurrentGroupTimeStamp();
 			result = this.getTSDiff(cmpTS, hbm.getMessage().getGroupTimeStamp());
-			
+
 			/* Add to receive buffer on satisfaction of these 2 conditions */
 			if (hbm.isReadyToBeDelivered() && (result <= 1))
 			{
@@ -144,7 +154,7 @@ public class MulticastService {
 				HoldBackMessage reqMsg = hbqueue.get(index);
 				it.remove();
 				TimeStampedMessage reqTs = reqMsg.getMessage();
-	
+
 				/* Add to recv buffer only if no other messages before this */
 				msgPasser.addToRecvBuf(reqTs);
 
@@ -153,42 +163,42 @@ public class MulticastService {
 			}			
 		}
 	}
-	
+
 	/* Get TimeStamp difference between 2 Vector TimeStamps */
 	public int getTSDiff(VectorTimeStamp t1, VectorTimeStamp t2)
 	{
 		int result = 0;
-		
+
 		for (int i=0; i< t1.getVectorLength(); i++)
 		{
 			result = result + (t1.getVector()[i] - t2.getVector()[i]);
 		}
-		
+
 		return result;		
 	}
-	
-	public void unicast(TimeStampedMessage msg) 
+
+	public void unicastSend(String destination, TimeStampedMessage msg)
 	{
 		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
-		
+
 		newMsg.setSrc(msgPasser.localName);
 		msgPasser.send(newMsg);
 	}
-	
+
 	public void receiveUnicast(TimeStampedMessage msg) {
 		TimeStampedMessage newMsg = new TimeStampedMessage(msg);
-		
+
 		newMsg.setSrc(msgPasser.localName);
 		newMsg.setKind(Kind.ACK.toString());
 		msgPasser.send(newMsg);
 	}
-	
+
 	public void receiveAck(TimeStampedMessage mmsg) {
 		ArrayList<HoldBackMessage> hbQueue = this.holdbackMap.get(mmsg.getGroupName());
-		
+
 		//TODO - Not all messages should go to the queue. Also keep track of which ones reached and which didn't.
 		//hbQueue.add(mmsg);
-		
+
 		//msgPasser.send(mmsg);
 	}
 
