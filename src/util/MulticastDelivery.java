@@ -18,15 +18,6 @@ public class MulticastDelivery extends Thread {
 		this.groupName = groupName;
 	}
 	
-	public boolean checkIfOkToDeliver(HoldBackMessage hbMsg, ArrayList<HoldBackMessage> hbQueue) {
-		for (HoldBackMessage holdBackMessage : hbQueue) {
-			if (hbMsg.compareTo(holdBackMessage) == 1)
-				return false;
-		}
-		
-		return true;
-	}
-	
 	public void run(){
 		while(true) {
 			HashMap<String, ArrayList<HoldBackMessage>> holdbackMap = FactoryService.getMultiCastService().getHoldbackMap();

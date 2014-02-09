@@ -116,7 +116,7 @@ public class MulticastService {
 			/* Deliver to Receive Buffer if counter is zero */
 			if (hmsg.isReadyToBeDelivered() == true)
 			{
-				this.causalOrder(selectedGroup.getName());
+				while (this.causalOrder(selectedGroup.getName()));
 			}	
 		}
 	}
@@ -170,13 +170,23 @@ public class MulticastService {
 		}
 		return true;
 	}
+	
+	public boolean checkIfOkToDeliver(HoldBackMessage hbMsg, ArrayList<HoldBackMessage> hbQueue) {
+		for (HoldBackMessage holdBackMessage : hbQueue) {
+			if (hbMsg.compareTo(holdBackMessage) == 1)
+				return false;
+		}
+		
+		return true;
+	}
 
 	/* Function to causal order to check whether
 	 * any message from the Hold-Back queue can be inserted into
 	 * the receive buffer.
 	 */
-	public void causalOrder(String groupName)
+	public boolean causalOrder(String groupName)
 	{
+		boolean delivered = false;
 		ArrayList<HoldBackMessage> hbqueue = holdbackMap.get(groupName);
 		Group selectedGroup = msgPasser.groups.get(groupName);
 		VectorTimeStamp cmpTS;
@@ -188,11 +198,13 @@ public class MulticastService {
 			cmpTS = (VectorTimeStamp)selectedGroup.getCurrentGroupTimeStamp();
 			result = this.getTSDiff(cmpTS, hbm.getMessage().getGroupTimeStamp());
 
-			if (cmpTS.compareTo(hbm.getMessage().getGroupTimeStamp()) != 1)
+			//if (cmpTS.compareTo(hbm.getMessage().getGroupTimeStamp()) != 1)
+			if (checkIfOkToDeliver(hbm, hbqueue))
 			{			
 				/* Add to receive buffer on satisfaction of these 2 conditions */
 				if (hbm.isReadyToBeDelivered() && (result <= 1))
 				{
+					delivered = true;
 					int index = hbqueue.indexOf(hbm);
 					HoldBackMessage reqMsg = hbqueue.get(index);
 					it.remove();
@@ -213,7 +225,10 @@ public class MulticastService {
 				}
 			}
 		}
+		
+		return delivered;
 	}
+	
 	/* Get TimeStamp difference between 2 Vector TimeStamps */
 	public int getTSDiff(VectorTimeStamp t1, VectorTimeStamp t2)
 	{
@@ -245,7 +260,7 @@ public class MulticastService {
 		newMsg.setSrc(msgPasser.localName);
 		newMsg.setKind(Kind.ACK.toString());
 		newMsg.setDest(destination);
-		
+
 		msgPasser.send(newMsg);
 	}
 
