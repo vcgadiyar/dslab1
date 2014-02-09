@@ -296,9 +296,12 @@ public class MessagePasser{
 		return null;
 	}
 
-	private void clearRecvDelayBuf(){
+	public void clearRecvDelayBuf(){
 		while(!this.recvDelayBuf.isEmpty()){
-			addToRecvBuf(this.recvDelayBuf.remove());
+			TimeStampedMessage delayedMsg = this.recvDelayBuf.remove();
+
+			if (!FactoryService.getMultiCastService().handleMulticastService(delayedMsg))
+				addToRecvBuf(delayedMsg);
 		}
 	}
 

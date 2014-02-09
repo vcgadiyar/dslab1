@@ -188,6 +188,9 @@ public class MulticastService {
 
 					/* Add to recv buffer only if no other messages before this */
 					msgPasser.addToRecvBuf(reqTs);
+					
+					/* Remove the messages in the delay buffer */
+					msgPasser.clearRecvDelayBuf();
 
 					/* Update the TimeStamp after putting in recv buffer */ 
 					selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);				
