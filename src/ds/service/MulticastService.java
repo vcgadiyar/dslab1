@@ -54,34 +54,59 @@ public class MulticastService {
 			msgPasser.send(temp);
 		}
 	}
-	
+
+	public boolean checkDupDeliveredMessages(VectorTimeStamp vts, String groupname) {
+		Group group = msgPasser.groups.get(groupname);
+		VectorTimeStamp grpTS = (VectorTimeStamp) group.getCurrentGroupTimeStamp();
+
+		if (vts.getVectorLength() != grpTS.getVectorLength())
+		{
+			return false;
+		}
+
+		for (int i=0; i<grpTS.getVectorLength() ; i++)
+		{
+			if (vts.getVector()[i] > grpTS.getVector()[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public void updateHoldBackQueue(TimeStampedMessage mmsg) {
 		ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(mmsg.getGroupName());
 		Group selectedGroup = msgPasser.groups.get(mmsg.getGroupName());
+		HoldBackMessage hmsg = null;
 
-		/* If message is not already there, do this */
-		HoldBackMessage hmsg = this.checkExists(mmsg);
-		if (hmsg == null)
-		{
-			hmsg = new HoldBackMessage(mmsg);
-			hmsg.addAck(mmsg.getSrc());
-			hmsg.addAck(msgPasser.localName);
+		/* Check if the message has already been delivered */
+		if (!checkDupDeliveredMessages(mmsg.getGroupTimeStamp(), mmsg.getGroupName())) {
+			/* If message is not already there, do this */
+			hmsg = this.checkExists(mmsg);
+			
+			if (hmsg == null)
+			{
+				hmsg = new HoldBackMessage(mmsg);
+				hmsg.addAck(mmsg.getSrc());
+				hmsg.addAck(msgPasser.localName);
 
-			/* Take the Lock and re-order Arraylist after adding into HBQ */
-			hbQueue.add(hmsg);
-			Collections.sort(hbQueue);
+				/* Take the Lock and re-order Arraylist after adding into HBQ */
+				hbQueue.add(hmsg);
+				Collections.sort(hbQueue);
+			}
+			else
+			{
+				/* Else just decrement the counter for the message received */
+				hmsg.addAck(mmsg.getSrc());		
+			}	
+			
+			/* Deliver to Receive Buffer if counter is zero */
+			if (hmsg.isReadyToBeDelivered() == true)
+			{
+				this.causalOrder(selectedGroup.getName());
+			}	
 		}
-		else
-		{
-			/* Else just decrement the counter for the message received */
-			hmsg.addAck(mmsg.getSrc());		
-		}		
-
-		/* Deliver to Receive Buffer if counter is zero */
-		if (hmsg.isReadyToBeDelivered() == true)
-		{
-			this.causalOrder(selectedGroup.getName());
-		}	
 	}
 
 	public void receiveMulticast(TimeStampedMessage mmsg)  {
@@ -95,7 +120,7 @@ public class MulticastService {
 			mmsg.setSrc(msgPasser.localName);
 			this.multicast(mmsg);
 		}
-		
+
 		hbQueueLock.unlock();
 	}
 
@@ -201,7 +226,7 @@ public class MulticastService {
 		newMsg.setKind(Kind.ACK.toString());
 		msgPasser.send(newMsg);
 	}
-	
+
 	public void receiveAck(TimeStampedMessage msg) {
 		updateHoldBackQueue(msg);
 	}
@@ -209,7 +234,7 @@ public class MulticastService {
 	public HashMap<String, ArrayList<HoldBackMessage>> getHoldbackMap() {
 		return holdbackMap;
 	}
-	
+
 	public boolean handleMulticastService(TimeStampedMessage msg) {
 		if (msg.getKind().equals(Kind.MULTICAST.toString())) {
 			receiveMulticast(msg);

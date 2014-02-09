@@ -27,7 +27,7 @@ public class Group {
 	
 	public TimeStamp getCurrentGroupTimeStamp()
 	{
-		return this.groupTS;
+		return new VectorTimeStamp(this.groupTS);
 	}
 	
 	public void setCurrentGroupTimeStamp(VectorTimeStamp ts)
