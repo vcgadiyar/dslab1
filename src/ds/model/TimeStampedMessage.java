@@ -10,7 +10,7 @@ public class TimeStampedMessage extends Message
 	protected TimeStamp timeStamp;
 	protected String origSrc;
 	protected String groupName;
-	protected TimeStamp groupTimeStamp;
+	protected VectorTimeStamp groupTimeStamp;
 
 	public TimeStampedMessage(Message msg) 
 	{
@@ -36,7 +36,7 @@ public class TimeStampedMessage extends Message
 		this.groupName = orig.getGroupName();
 		this.origSrc = orig.getOrigSrc();
 		this.timeStamp = orig.getTimeStamp();
-		this.groupTimeStamp = new VectorTimeStamp(orig.getTimeStamp());
+		this.groupTimeStamp = orig.getGroupTimeStamp();
 	}
 
 	public TimeStamp getTimeStamp() 
@@ -50,14 +50,14 @@ public class TimeStampedMessage extends Message
 	}
 	
 	/* Get and set Group TimeStamp */
-	public TimeStamp getGroupTimeStamp()
+	public VectorTimeStamp getGroupTimeStamp()
 	{
 		return this.groupTimeStamp;
 	}
 	
 	public void setGroupTimeStamp(TimeStamp ts)
 	{
-		this.groupTimeStamp = ts;
+		this.groupTimeStamp = (VectorTimeStamp)ts;
 	}
 	
 	public void setKind(String kind)

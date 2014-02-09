@@ -89,15 +89,32 @@ public class MulticastService {
 		
 		for (HoldBackMessage hmsg: hbQueue)
 		{
-			if (msg.getOrigSrc() == hmsg.getMessage().getOrigSrc() &&
-					msg.getGroupTimeStamp() == hmsg.getMessage().getGroupTimeStamp() &&
-					msg.getGroupName() == hmsg.getMessage().getGroupName())
+			boolean ret = false;
+			ret = this.compareTS(msg.getGroupTimeStamp().getVector(), hmsg.getMessage().getGroupTimeStamp().getVector());
+			if (msg.getOrigSrc().equals(hmsg.getMessage().getOrigSrc()) && ret &&	msg.getGroupName().equals(hmsg.getMessage().getGroupName()))
 			{
 				return hmsg;
 			}
 		}
 		/* Not found */
 		return null;		
+	}
+	
+	public boolean compareTS(int [] a1, int [] a2)
+	{
+		if (a1.length != a2.length)
+		{
+			return false;
+		}
+		
+		for (int i=0; i<a1.length ; i++)
+		{
+			if (a1[i] != a2[i])
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void unicast(TimeStampedMessage msg) {

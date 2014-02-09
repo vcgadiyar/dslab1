@@ -191,7 +191,7 @@ public class Application
 				}
 				
 				/* Set the group TimeStamp */
-				mmsg.setTimeStamp(gts);
+				mmsg.setGroupTimeStamp(gts);
 				
 				mmsg.setSrc(msgPasser.localName);
 				mmsg.setOrigSrc(msgPasser.localName);
