@@ -18,7 +18,7 @@ import ds.service.FactoryService;
 
 public class MessagePasser{
 	private static MessagePasser msgPasser;
-	
+
 	private String configFileName;
 	private int seqNum;
 	private Node localNode;
@@ -38,12 +38,12 @@ public class MessagePasser{
 	public static Constants.TimeStampType tsType;
 	public static HashMap<String, Group> groups;
 	public static String localName;
-	
+
 	public List<Node> getNodeList()
 	{
 		return this.nodes;
 	}
-	
+
 	public MessagePasser(String configFileName, String localName){
 		super();
 		this.configFileName = configFileName;
@@ -73,6 +73,10 @@ public class MessagePasser{
 		
 		SocketListener socketListener = new SocketListener(this.localNode);
 		socketListener.start();
+		
+		for (String groupName : groups.keySet()) {
+			MulticastDelivery deliver = new MulticastDelivery(groupName);
+		}
 	}
 	
 	public static void createInstance(String configFileName, String localName){

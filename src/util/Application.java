@@ -15,6 +15,8 @@ import ds.service.MulticastService;
 
 public class Application
 {
+	public static long intervalTime = 60000;
+	
 	public static void main(String args[]) throws Exception
 	{
 		if(args.length != 2)
@@ -39,10 +41,17 @@ public class Application
 				break;
 			}
 		}
-
-		System.out.println("Welcome to the COMMUNICATOR!");
-		System.out.println("---------------------");
+		
 		Scanner reader = new Scanner(System.in);
+		
+		System.out.println("Welcome to the COMMUNICATOR!");
+		int option = 0;
+		System.out.println("Please enter the interval time for ack timeout(sec) : ");
+		intervalTime = reader.nextLong() * 1000;
+		reader.nextLine();
+		System.out.println();
+		System.out.println("---------------------");
+
 		while(true)
 		{
 			System.out.println("Please select one of the following options");
@@ -53,7 +62,7 @@ public class Application
 			System.out.println("5> Increment Local Time Stamp");
 			System.out.println("6> Exit");
 
-			int option = 0;
+			option = 0;
 			while( option!=1 && option!=2 && option!=3 && option!=4 && option!=5 && option!=6)
 			{
 				System.out.print("Select Option(1 or 2 or 3 or 4 or 5 or 6) : ");
@@ -175,11 +184,11 @@ public class Application
 						break;
 					}
 				}
-				
+
 				System.out.println("Selected group: "+group);
 				TimeStampedMessage mmsg = new TimeStampedMessage("", Kind.MULTICAST.toString(), message, group);
 				Group selectedGroup = msgPasser.groups.get(group);
-				
+
 				/* Increment and attach timestamp */
 				TimeStamp gts = selectedGroup.updateGroupTSOnSend(msgPasser.localName);
 				VectorTimeStamp vts = (VectorTimeStamp)gts;
@@ -189,10 +198,10 @@ public class Application
 					System.out.println("Wrong group or wrong node");
 					continue;
 				}
-				
+
 				/* Set the group TimeStamp */
 				mmsg.setGroupTimeStamp(gts);
-				
+
 				mmsg.setSrc(msgPasser.localName);
 				mmsg.setOrigSrc(msgPasser.localName);
 				mcService.multicast(mmsg);

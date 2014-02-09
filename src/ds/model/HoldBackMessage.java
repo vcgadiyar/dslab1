@@ -1,16 +1,23 @@
 package ds.model;
 
-public class HoldBackMessage {
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import util.Application;
+import util.MessagePasser;
+import util.Node;
+
+public class HoldBackMessage implements Comparable<HoldBackMessage> {
 	
 	TimeStampedMessage ts;
-	int counter;
+	HashMap <String, Boolean> acknowledgement;
 	
 	public HoldBackMessage()
 	{}
 	
 	public HoldBackMessage(TimeStampedMessage ts, int counter) {
 		this.ts = new TimeStampedMessage(ts);
-		this.counter = counter; 
+		this.acknowledgement = new HashMap<String, Boolean>();
 	}
 	
 	public TimeStampedMessage getMessage()
@@ -18,13 +25,85 @@ public class HoldBackMessage {
 		return this.ts;
 	}
 	
-	public void decrementCounter()
+	public void addAck(String nodeName)
 	{
-		this.counter--;
+		if (acknowledgement.get(nodeName) == true)
+			return;
+		else
+			acknowledgement.put(nodeName, true);
 	}
 	
-	public int getCounter()
+	public boolean isReadyToBeDelivered()
 	{
-		return this.counter;
+		Group grp;
+		
+		try {
+			grp = MessagePasser.getInstance().groups.get(ts.getGroupName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		for (Node node : grp.getMemberArray()) {
+			if (acknowledgement.get(node.getName()) != true) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	public ArrayList<String> getRemainingAckList()
+	{
+		ArrayList<String> unicastList = new ArrayList<String>();
+		Group grp;
+		
+		try {
+			grp = MessagePasser.getInstance().groups.get(ts.getGroupName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return unicastList;
+		}
+
+		for (Node node : grp.getMemberArray()) {
+			if (acknowledgement.get(node.getName()) != true) {
+				unicastList.add(node.getName());
+			}
+		}
+		
+		return unicastList;
+	}
+	
+	public int compareTo(HoldBackMessage hbMsg)
+	{
+		int returnVal = 0;
+		VectorTimeStamp vts = hbMsg.getMessage().getGroupTimeStamp();
+		for(int i = 0; i < this.ts.getGroupTimeStamp().getVectorLength(); i++)
+		{
+			if(this.ts.getGroupTimeStamp().getVector()[i] > vts.getVector()[i] )
+			{
+				if(returnVal==0)
+				{
+					returnVal = 1;
+				}
+				else if (returnVal<0)
+				{
+					return 0;
+				}
+			}
+			else if(this.ts.getGroupTimeStamp().getVector()[i] < vts.getVector()[i] )
+			{
+				if(returnVal == 0)
+				{
+					returnVal = -1;
+				}
+				else if(returnVal>0)
+				{
+					return 0;
+				}
+			}
+			
+		}
+		return returnVal;
 	}
 }

@@ -52,7 +52,7 @@ public class MulticastService {
 		{
 			Group selectedGroup = msgPasser.groups.get(mmsg.getGroupName());
 			hmsg = new HoldBackMessage(mmsg, (selectedGroup.numOfMembers()-1));
-			hmsg.decrementCounter();
+			hmsg.addAck(mmsg.getSrc());
 			
 			/* Take the Lock and re-order Arraylist before adding into HBQ */
 			hbQueue.add(hmsg);			
@@ -61,11 +61,11 @@ public class MulticastService {
 		else
 		{
 			/* Else just decrement the counter for the message received */
-			hmsg.decrementCounter();		
+			hmsg.addAck(mmsg.getSrc());		
 		}		
 		
 		/* Deliver to Receive Buffer if counter is zero */
-		if (hmsg.getCounter() == 0)
+		if (hmsg.isReadyToBeDelivered() == true)
 		{
 			int index = hbQueue.indexOf(hmsg);
 			HoldBackMessage reqMsg = hbQueue.remove(index);
@@ -139,5 +139,9 @@ public class MulticastService {
 		//hbQueue.add(mmsg);
 		
 		//msgPasser.send(mmsg);
+	}
+
+	public HashMap<String, ArrayList<HoldBackMessage>> getHoldbackMap() {
+		return holdbackMap;
 	}
 }
