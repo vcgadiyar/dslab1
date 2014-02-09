@@ -23,6 +23,7 @@ public class MulticastService {
 		try {
 			msgPasser = MessagePasser.getInstance();
 			holdbackMap = new HashMap<String, ArrayList<HoldBackMessage>>();
+			deliverMap = new HashMap<String, ArrayList<HoldBackMessage>>();
 			hbQueueLock = new ReentrantLock();
 
 			for (String grpName : msgPasser.groups.keySet()) {				
