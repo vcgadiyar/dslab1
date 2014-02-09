@@ -55,6 +55,7 @@ public class MulticastDelivery extends Thread {
 				unicastList = holdBackMessage.getRemainingAckList();
 				
 				for (String nodeName : unicastList) {
+					System.out.println("Retrying, sending to "+nodeName);
 					FactoryService.mcService.sendUnicast(nodeName, holdBackMessage.getMessage());
 				}
 			}
