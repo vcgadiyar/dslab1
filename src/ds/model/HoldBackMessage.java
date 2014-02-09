@@ -8,35 +8,37 @@ import util.Node;
 
 public class HoldBackMessage implements Comparable<HoldBackMessage> {
 
-	
+
 	TimeStampedMessage ts;
 	HashMap <String, Boolean> acknowledgement;
-	
+
 	public HoldBackMessage()
 	{}
-	
+
 	public HoldBackMessage(TimeStampedMessage ts, int counter) {
 		this.ts = new TimeStampedMessage(ts);
 		this.acknowledgement = new HashMap<String, Boolean>();
 	}
-	
+
 	public TimeStampedMessage getMessage()
 	{
 		return this.ts;
 	}
-	
+
 	public void addAck(String nodeName)
 	{
-		if (acknowledgement.get(nodeName) == true)
-			return;
-		else
-			acknowledgement.put(nodeName, true);
+		if (acknowledgement.containsKey(nodeName)) {
+			if (acknowledgement.get(nodeName) == true)
+				return;
+		}
+		
+		acknowledgement.put(nodeName, true);
 	}
-	
+
 	public boolean isReadyToBeDelivered()
 	{
 		Group grp;
-		
+
 		try {
 			MessagePasser.getInstance();
 			grp = MessagePasser.groups.get(ts.getGroupName());
@@ -46,6 +48,10 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 		}
 
 		for (Node node : grp.getMemberArray()) {
+			if (acknowledgement.containsKey(node.getName())) {
+				return false;
+			}
+			
 			if (acknowledgement.get(node.getName()) != true) {
 				return false;
 			}
@@ -53,12 +59,12 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 
 		return true;
 	}
-	
+
 	public ArrayList<String> getRemainingAckList()
 	{
 		ArrayList<String> unicastList = new ArrayList<String>();
 		Group grp;
-		
+
 		try {
 			MessagePasser.getInstance();
 			grp = MessagePasser.groups.get(ts.getGroupName());
@@ -72,7 +78,7 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 				unicastList.add(node.getName());
 			}
 		}
-		
+
 		return unicastList;
 	}
 	/*
@@ -104,11 +110,11 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 					return 0;
 				}
 			}
-			
+
 		}
 		return returnVal;
 	}
-	*/
+	 */
 	@Override
 	public int compareTo(HoldBackMessage hbm)
 	{
@@ -139,7 +145,7 @@ public class HoldBackMessage implements Comparable<HoldBackMessage> {
 					return 0;
 				}
 			}
-			
+
 		}
 		return returnVal;
 	}	
