@@ -15,6 +15,7 @@ import ds.model.*;
 public class MulticastService {
 	MessagePasser msgPasser = null;
 	HashMap<String, ArrayList<HoldBackMessage>> holdbackMap = null;
+	HashMap<String, ArrayList<HoldBackMessage>> deliverMap = null;
 	ReentrantLock hbQueueLock = null;
 
 	public MulticastService() {
@@ -25,7 +26,9 @@ public class MulticastService {
 
 			for (String grpName : msgPasser.groups.keySet()) {				
 				ArrayList<HoldBackMessage> grpHoldbackQueue = new ArrayList<HoldBackMessage>();
+				ArrayList<HoldBackMessage> deliverQueue = new ArrayList<HoldBackMessage>();
 				holdbackMap.put(grpName, grpHoldbackQueue);
+				deliverMap.put(grpName, deliverQueue);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -55,24 +58,21 @@ public class MulticastService {
 		}
 	}
 
-	public boolean checkDupDeliveredMessages(VectorTimeStamp vts, String groupname) {
-		Group group = msgPasser.groups.get(groupname);
-		VectorTimeStamp grpTS = (VectorTimeStamp) group.getCurrentGroupTimeStamp();
+	public boolean checkDupDeliveredMessages(TimeStampedMessage msg, String groupName) {
+		ArrayList<HoldBackMessage> deliverList = deliverMap.get(groupName);
 
-		if (vts.getVectorLength() != grpTS.getVectorLength())
+		for (HoldBackMessage hmsg: deliverList)
 		{
-			return false;
-		}
-
-		for (int i=0; i<grpTS.getVectorLength() ; i++)
-		{
-			if (vts.getVector()[i] > grpTS.getVector()[i])
+			boolean ret = false;
+			ret = this.compareTS(msg.getGroupTimeStamp().getVector(), hmsg.getMessage().getGroupTimeStamp().getVector());
+			if (msg.getOrigSrc().equals(hmsg.getMessage().getOrigSrc()) && ret &&	msg.getGroupName().equals(hmsg.getMessage().getGroupName()))
 			{
-				return false;
+				return true;
 			}
 		}
-
-		return true;
+		
+		/* Not found */
+		return false;		
 	}
 
 	public void updateHoldBackQueue(TimeStampedMessage mmsg) {
@@ -81,7 +81,7 @@ public class MulticastService {
 		HoldBackMessage hmsg = null;
 
 		/* Check if the message has already been delivered */
-		if (!checkDupDeliveredMessages(mmsg.getGroupTimeStamp(), mmsg.getGroupName())) {
+		if (!checkDupDeliveredMessages(mmsg, mmsg.getGroupName())) {
 			/* If message is not already there, do this */
 			hmsg = this.checkExists(mmsg);
 			
@@ -185,6 +185,10 @@ public class MulticastService {
 					HoldBackMessage reqMsg = hbqueue.get(index);
 					it.remove();
 					TimeStampedMessage reqTs = reqMsg.getMessage();
+					
+					HoldBackMessage deliveredMsg = new HoldBackMessage(reqTs);
+					ArrayList<HoldBackMessage> deliverList = deliverMap.get(groupName);
+					deliverList.add(deliveredMsg);
 
 					/* Add to recv buffer only if no other messages before this */
 					msgPasser.addToRecvBuf(reqTs);
