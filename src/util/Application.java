@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -7,6 +8,7 @@ import ds.model.Group;
 import ds.model.TimeStamp;
 import ds.model.TimeStampedMessage;
 import ds.model.Constants.Kind;
+import ds.model.VectorTimeStamp;
 import ds.service.FactoryService;
 import ds.service.MulticastService;
 
@@ -177,8 +179,11 @@ public class Application
 				System.out.println("Selected group: "+group);
 				TimeStampedMessage mmsg = new TimeStampedMessage("", Kind.MULTICAST.toString(), message, group);
 				Group selectedGroup = msgPasser.groups.get(group);
-				TimeStamp gts = selectedGroup.updateGroupTSOnSend(msgPasser.localName);
 				
+				/* Increment and attach timestamp */
+				TimeStamp gts = selectedGroup.updateGroupTSOnSend(msgPasser.localName);
+				VectorTimeStamp vts = (VectorTimeStamp)gts;
+				System.out.println("TimeStamp got : "+Arrays.toString(vts.getVector()));
 				if (gts == null)
 				{
 					System.out.println("Wrong group or wrong node");

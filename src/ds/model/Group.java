@@ -91,4 +91,9 @@ public class Group {
 		
 		return false;
 	}
+	
+	public int numOfMembers()
+	{
+		return this.members.size();
+	}
 }

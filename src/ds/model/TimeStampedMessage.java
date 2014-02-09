@@ -28,7 +28,6 @@ public class TimeStampedMessage extends Message
 
 		this.groupName = groupName;
 		this.origSrc = super.getSrc();
-		//TODO - Time stamp for group
 	}
 	
 	public TimeStampedMessage(TimeStampedMessage orig)
