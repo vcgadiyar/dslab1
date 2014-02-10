@@ -82,7 +82,7 @@ public class MulticastService {
 				return true;
 			}
 		}
-
+		
 		/* Not found */
 		return false;		
 	}
