@@ -9,6 +9,7 @@ import java.util.HashMap;
 import ds.model.HoldBackMessage;
 import ds.model.TimeStampedMessage;
 import ds.service.FactoryService;
+import ds.service.MulticastService;
 
 public class MulticastDelivery extends Thread {
 	private String groupName;
@@ -20,6 +21,7 @@ public class MulticastDelivery extends Thread {
 	
 	public void run(){
 		while(true) {
+			MulticastService.hbMapLock.lock();
 			HashMap<String, ArrayList<HoldBackMessage>> holdbackMap = FactoryService.getMultiCastService().getHoldbackMap();
 			ArrayList<HoldBackMessage> hbQueue = holdbackMap.get(groupName);
 			ArrayList<String> unicastList = new ArrayList<String>();
@@ -50,7 +52,8 @@ public class MulticastDelivery extends Thread {
 					FactoryService.mcService.sendUnicast(nodeName, holdBackMessage.getMessage());
 				}
 			}
-			
+
+			MulticastService.hbMapLock.unlock();
 			try {
 				sleep(Application.intervalTime);
 			} catch (InterruptedException e) {

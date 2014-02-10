@@ -205,7 +205,9 @@ public class Application
 
 				mmsg.setSrc(msgPasser.localName);
 				mmsg.setOrigSrc(msgPasser.localName);
+				MulticastService.hbMapLock.lock();
 				mcService.multicast(mmsg);
+				MulticastService.hbMapLock.unlock();
 				System.out.println();
 			}
 			break;

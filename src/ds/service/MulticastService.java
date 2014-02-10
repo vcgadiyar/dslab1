@@ -17,14 +17,14 @@ public class MulticastService {
 	MessagePasser msgPasser = null;
 	HashMap<String, ArrayList<HoldBackMessage>> holdbackMap = null;
 	HashMap<String, ArrayList<HoldBackMessage>> deliverMap = null;
-	ReentrantLock hbQueueLock = null;
+	public static ReentrantLock hbMapLock = null;
 
 	public MulticastService() {
 		try {
 			msgPasser = MessagePasser.getInstance();
 			holdbackMap = new HashMap<String, ArrayList<HoldBackMessage>>();
 			deliverMap = new HashMap<String, ArrayList<HoldBackMessage>>();
-			hbQueueLock = new ReentrantLock();
+			hbMapLock = new ReentrantLock();
 
 			for (String grpName : msgPasser.groups.keySet()) {				
 				ArrayList<HoldBackMessage> grpHoldbackQueue = new ArrayList<HoldBackMessage>();
@@ -123,7 +123,6 @@ public class MulticastService {
 
 	public void receiveMulticast(TimeStampedMessage mmsg)  {
 
-		hbQueueLock.lock();
 		updateHoldBackQueue(mmsg);
 
 		/* Re-multicast if this is the original sent message */
@@ -133,7 +132,6 @@ public class MulticastService {
 			this.multicast(mmsg);
 		}
 
-		hbQueueLock.unlock();
 	}
 
 	/* Check if a msg exists in the Arraylist */
@@ -202,7 +200,7 @@ public class MulticastService {
 			if (checkIfOkToDeliver(hbm, hbqueue))
 			{			
 				/* Add to receive buffer on satisfaction of these 2 conditions */
-				if (hbm.isReadyToBeDelivered() && (result <= 1))
+				if (hbm.isReadyToBeDelivered() && ((result <= 1) || cmpTS.compareTo(hbm.getMessage().getGroupTimeStamp()) == 0))
 				{
 					delivered = true;
 					int index = hbqueue.indexOf(hbm);
@@ -213,6 +211,8 @@ public class MulticastService {
 					HoldBackMessage deliveredMsg = new HoldBackMessage(reqTs);
 					ArrayList<HoldBackMessage> deliverList = deliverMap.get(groupName);
 					deliverList.add(deliveredMsg);
+					
+					hbMapLock.unlock();
 
 					/* Add to recv buffer only if no other messages before this */
 					msgPasser.addToRecvBuf(reqTs);
@@ -221,7 +221,9 @@ public class MulticastService {
 					msgPasser.clearRecvDelayBuf();
 
 					/* Update the TimeStamp after putting in recv buffer */ 
-					selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);				
+					selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);
+
+					hbMapLock.lock();				
 				}
 			}
 		}
@@ -274,15 +276,21 @@ public class MulticastService {
 
 	public boolean handleMulticastService(TimeStampedMessage msg) {
 		if (msg.getKind().equals(Kind.MULTICAST.toString())) {
+			hbMapLock.lock();
 			receiveMulticast(msg);
+			hbMapLock.unlock();
 			return true;
 		}
 		else if (msg.getKind().equals(Kind.UNICAST.toString())) {
+			hbMapLock.lock();
 			receiveUnicast(msg);
+			hbMapLock.unlock();
 			return true;
 		}
 		else if (msg.getKind().equals(Kind.ACK.toString())) {
+			hbMapLock.lock();
 			receiveAck(msg);
+			hbMapLock.unlock();
 			return true;
 		}
 		return false;
