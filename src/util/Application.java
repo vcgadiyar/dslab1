@@ -16,7 +16,7 @@ import ds.service.MulticastService;
 public class Application
 {
 	public static long intervalTime = 60000;
-	
+
 	public static void main(String args[]) throws Exception
 	{
 		if(args.length != 2)
@@ -28,9 +28,9 @@ public class Application
 		{
 			MessagePasser.createInstance(args[0], args[1]);
 		}
-		
+
 		Scanner reader = new Scanner(System.in);
-		
+
 		System.out.println("Welcome to the COMMUNICATOR!");
 		int option = 0;
 		System.out.println("Please enter the interval time for ack timeout(sec) : ");
@@ -38,7 +38,7 @@ public class Application
 		reader.nextLine();
 		System.out.println();
 		System.out.println("---------------------");
-		
+
 		MessagePasser msgPasser = MessagePasser.getInstance();
 		MulticastService mcService = FactoryService.getMultiCastService();
 
@@ -205,9 +205,15 @@ public class Application
 
 				mmsg.setSrc(msgPasser.localName);
 				mmsg.setOrigSrc(msgPasser.localName);
-				MulticastService.hbMapLock.lock();
+				try {
+					MulticastService.hbMapLock.lock();
+				} catch (Exception e) {
+				}
 				mcService.multicast(mmsg);
-				MulticastService.hbMapLock.unlock();
+				try {
+					MulticastService.hbMapLock.unlock();
+				} catch (Exception e) {
+				}
 				System.out.println();
 			}
 			break;

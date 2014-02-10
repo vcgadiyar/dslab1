@@ -32,7 +32,7 @@ public class MulticastService {
 				holdbackMap.put(grpName, grpHoldbackQueue);
 				deliverMap.put(grpName, deliverQueue);
 			}
-			
+
 			for (String groupName : msgPasser.groups.keySet()) {
 				Group grp = msgPasser.groups.get(groupName);
 
@@ -82,7 +82,7 @@ public class MulticastService {
 				return true;
 			}
 		}
-		
+
 		/* Not found */
 		return false;		
 	}
@@ -96,7 +96,7 @@ public class MulticastService {
 		if (!checkDupDeliveredMessages(mmsg, mmsg.getGroupName())) {
 			/* If message is not already there, do this */
 			hmsg = this.checkExists(mmsg);
-			
+
 			if (hmsg == null)
 			{
 				hmsg = new HoldBackMessage(mmsg);
@@ -112,7 +112,7 @@ public class MulticastService {
 				/* Else just decrement the counter for the message received */
 				hmsg.addAck(mmsg.getSrc());		
 			}	
-			
+
 			/* Deliver to Receive Buffer if counter is zero */
 			if (hmsg.isReadyToBeDelivered() == true)
 			{
@@ -168,13 +168,13 @@ public class MulticastService {
 		}
 		return true;
 	}
-	
+
 	public boolean checkIfOkToDeliver(HoldBackMessage hbMsg, ArrayList<HoldBackMessage> hbQueue) {
 		for (HoldBackMessage holdBackMessage : hbQueue) {
 			if (hbMsg.compareTo(holdBackMessage) == 1)
 				return false;
 		}
-		
+
 		return true;
 	}
 
@@ -207,30 +207,30 @@ public class MulticastService {
 					HoldBackMessage reqMsg = hbqueue.get(index);
 					it.remove();
 					TimeStampedMessage reqTs = reqMsg.getMessage();
-					
+
 					HoldBackMessage deliveredMsg = new HoldBackMessage(reqTs);
 					ArrayList<HoldBackMessage> deliverList = deliverMap.get(groupName);
 					deliverList.add(deliveredMsg);
-					
-					hbMapLock.unlock();
+
+					//hbMapLock.unlock();
 
 					/* Add to recv buffer only if no other messages before this */
 					msgPasser.addToRecvBuf(reqTs);
-					
+
 					/* Remove the messages in the delay buffer */
 					msgPasser.clearRecvDelayBuf();
 
 					/* Update the TimeStamp after putting in recv buffer */ 
 					selectedGroup.updateGroupTSOnRecv(hbm.getMessage().getGroupTimeStamp(), msgPasser.localName);
 
-					hbMapLock.lock();				
+					//hbMapLock.lock();				
 				}
 			}
 		}
-		
+
 		return delivered;
 	}
-	
+
 	/* Get TimeStamp difference between 2 Vector TimeStamps */
 	public int getTSDiff(VectorTimeStamp t1, VectorTimeStamp t2)
 	{
@@ -276,21 +276,39 @@ public class MulticastService {
 
 	public boolean handleMulticastService(TimeStampedMessage msg) {
 		if (msg.getKind().equals(Kind.MULTICAST.toString())) {
-			hbMapLock.lock();
+			try {
+				hbMapLock.lock();
+			} catch (Exception e) {
+			}
 			receiveMulticast(msg);
-			hbMapLock.unlock();
+			try {
+				hbMapLock.unlock();
+			} catch (Exception e) {
+			}
 			return true;
 		}
 		else if (msg.getKind().equals(Kind.UNICAST.toString())) {
-			hbMapLock.lock();
+			try {
+				hbMapLock.lock();
+			} catch (Exception e) {
+			}
 			receiveUnicast(msg);
-			hbMapLock.unlock();
+			try {
+				hbMapLock.unlock();
+			} catch (Exception e) {
+			}
 			return true;
 		}
 		else if (msg.getKind().equals(Kind.ACK.toString())) {
-			hbMapLock.lock();
+			try {
+				hbMapLock.lock();
+			} catch (Exception e) {
+			}
 			receiveAck(msg);
-			hbMapLock.unlock();
+			try {
+				hbMapLock.unlock();
+			} catch (Exception e) {
+			}
 			return true;
 		}
 		return false;
